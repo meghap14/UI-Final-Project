@@ -25,16 +25,22 @@ if (Meteor.isClient) {
 	Template.login.onRendered(function() {
 		//holds value of what users type into username textbox
 		this.username = new ReactiveVar("");
+		this.password = new ReactiveVar("");
 	});
 
 	Template.login.events({
 		'click #create'(event, instance) {
 			instance.username.set($('#username').val());
+			instance.password.set($('#password').val());
 			
 			//check if username textbox is empty
 			if (instance.username.get() === "") {
 				//currently firing alerts, we can change this to on the page warnings if we want
 				alert("Please enter a username");
+			}
+
+			else if (instance.password.get() === "") {
+				alert("Please enter a password");
 			}
 			
 			//checks if username is already in database
@@ -42,14 +48,11 @@ if (Meteor.isClient) {
 				alert("Username already exists");
 			}
 			else {
-				//adds username to the database
-				Accounts.insert({username : instance.username.get() });
+				//adds username and password to the database
+				Accounts.insert({username : instance.username.get(), password : instance.password.get() });
 				
 				//sets global value for logged in user
 				LOGGED_IN_USER.set(instance.username.get());
-				
-				//clears textbox
-				$('#username').val("");
 				
 				//switches to show welcome screen
 				SHOW_LOGIN.set(false);
@@ -57,22 +60,24 @@ if (Meteor.isClient) {
 		},
 		'click #login'(event, instance) {
 			instance.username.set($('#username').val());
+			instance.password.set($('#password').val());
 			
 			//checks if username textbox is empty
 			if (instance.username.get() === "") {
 				alert("Please enter a username");
 			}
+
+			if (instance.password.get() === "") {
+				alert("Please enter a password");
+			}
 			
-			//checks if username is in the database
-			else if (!Accounts.find({ username : instance.username.get() }).count()) {
-				alert("Username does not exist");
+			//checks if username and password are in the database
+			else if (!Accounts.find({ username : instance.username.get(), password : instance.password.get() }).count()) {
+				alert("Account does not exist");
 			}
 			else {
 				//sets global value for logged in user
 				LOGGED_IN_USER.set(instance.username.get());
-				
-				//clears username textbox
-				$('#username').val("");
 				
 				//switches to welcome screen
 				SHOW_LOGIN.set(false);
