@@ -5,9 +5,36 @@
 <body>
   <h1>Welcome to Meteor!</h1>
 
-  {{> hello}}
-  {{> info}}
+  {{> container}}
+  
 </body>
+
+<template name="container">
+  {{ #if show_login }}
+    {{> login}}
+  {{ else }}
+    {{> welcome}}
+  {{ /if }}
+</template>
+
+<template name="login">
+  Username:
+  <input type="text" id="username"><br><br>
+  <button id="create">Create Account</button>
+  <button id="login">Log In</button>
+</template>
+
+<template name ="welcome">
+  <p>Welcome {{name}}!</p>
+  <button id="logout">Log Out</button>
+  <button id="delete">Delete Account</button>
+</template>
+
+
+
+
+
+
 
 <template name="hello">
   <button>Click Me</button>
