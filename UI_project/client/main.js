@@ -99,12 +99,16 @@ if (Meteor.isClient) {
 			SHOW_LOGIN.set(true);
 		},
 		'click #delete'(event, instance) {
-			//calls server side function to delete account
-			Meteor.call('delete_account', LOGGED_IN_USER.get());
+			//sends confirmation alert
+			if (confirm("Do you want to delete this account?")) {
+
+				//calls server side function to delete account
+				Meteor.call('delete_account', LOGGED_IN_USER.get());
 			
-			//clears global value for logged in user, switches back to login screen
-			LOGGED_IN_USER.set("");
-			SHOW_LOGIN.set(true);
+				//clears global value for logged in user, switches back to login screen
+				LOGGED_IN_USER.set("");
+				SHOW_LOGIN.set(true);
+			}
 		}
 	})
 
