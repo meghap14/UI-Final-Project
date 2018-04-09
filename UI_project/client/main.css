@@ -1,1 +1,75 @@
 /* CSS declarations go here */
+
+    *{
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
+
+    body {
+        position: relative;
+    }
+
+    .page-header {
+        padding: 0px;
+        margin: 15px 0 5px;
+    }
+
+    /* HEADER */
+    .login{
+        margin: 1px 0px 1px 0px;
+    }
+
+    .bottomborder{
+        border-bottom: 1px solid #eee;
+    }
+
+    header {
+        width: 100%;
+        text-align: right;
+        padding: 0 .5em .7em;
+        border-bottom: solid 1px #E5E5E5;
+        margin-bottom: 1em;
+    }
+
+    .headerrow {
+        display: flex;
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    .headercolumn {
+        flex: 50%;
+        text-align: center;
+    }
+
+    /* MAIN INTERFACE */
+
+    .row {
+        display: flex;
+        text-align: center;
+        padding-bottom: 2px;
+        height: 500px;
+    }
+
+    #buildtable{
+        background: lightgreen;
+        flex: 70%;
+        text-align: center;
+        height: 100%;
+    }
+    
+    #menu{
+        background: lavender;
+        flex: 30%;
+        text-align: center;
+        height: 100%;
+    }
+
+    .options{
+        margin: 0px 10px;
+        width: 50%;
+    }
+
+    #blocks{
+        height: 425px;
+        background: indianred;
+    }

@@ -3,52 +3,78 @@
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
-
   {{> container}}
-  
 </body>
 
 <template name="container">
-  {{ #if show_login }}
-    {{> login}}
-  {{ else }}
-    {{> welcome}}
-  {{ /if }}
+    <header class="page-header bottomborders headerrow">
+    <div class="headercolumn">
+    <h1>Lego Builder!</h1>
+    </div>
+    <div class="headercolumn">
+    {{ #if show_login }}
+        {{> login}}
+    {{ else }}
+        {{> welcome}}
+    {{ /if }}   
+    </div>
+    </header>
+    <div class="loggedin">
+        <!-- {{ #if show_login }} -->
+            <!-- <h2 style="text-align: center">Log in above to get started!</h2> -->
+        <!-- {{ else }} -->
+             {{> interface}}
+        <!-- {{ /if }} -->
+
+    </div>
+
 </template>
 
+<!-- main content -->
+<template name="interface">
+<!-- display blocks here and save build -->
+<div class="row">
+    <div id="menu">
+        <div id="blocks">
+        </div>
+        <div >
+            <button class="options" id="create">Save</button>
+            <br>
+            <button class="options" id="create">Clear</button>
+        </div>
+    </div>
+    <!-- display build here -->
+    <div id="buildtable">
+
+    </div>
+</div>
+
+</template>
+
+<!-- login/create account box -->
 <template name="login">
-  Username:
-  <input type="text" id="username"><br>
-  Password: 
-  <input type="password" id="password"><br><br>
-  <button id="create">Create Account</button>
-  <button id="login">Log In</button>
+<div class="login">
+    <label for="username">Username:</label>
+    <input type="text" id="username"><br>
+</div>
+
+<div class="login">
+    <label for="password">Password:</label>
+    <input type="password" id="password"><br><br>
+</div>
+
+<div class="login">
+    <button id="create">Create Account</button>
+    <button id="login">Log In</button>
+</div>
 </template>
 
+<!-- if logged in -->
 <template name ="welcome">
-  <p>Welcome {{name}}!</p>
-  <button id="logout">Log Out</button>
-  <button id="delete">Delete Account</button>
+<div>
+    <p>Welcome {{name}}!</p>
+    <button id="logout">Log Out</button>
+    <button id="delete">Delete Account</button>    
+</div>
 </template>
 
-
-
-
-
-
-
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
-</template>
-
-<template name="info">
-  <h2>Learn Meteor!</h2>
-  <ul>
-    <li><a href="https://www.meteor.com/try" target="_blank">Do the Tutorial</a></li>
-    <li><a href="http://guide.meteor.com" target="_blank">Follow the Guide</a></li>
-    <li><a href="https://docs.meteor.com" target="_blank">Read the Docs</a></li>
-    <li><a href="https://forums.meteor.com" target="_blank">Discussions</a></li>
-  </ul>
-</template>
