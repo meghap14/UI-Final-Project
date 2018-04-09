@@ -28,6 +28,7 @@
         padding: 0 .5em .7em;
         border-bottom: solid 1px #E5E5E5;
         margin-bottom: 1em;
+        min-width: 700px;
     }
 
     .headerrow {
@@ -48,11 +49,13 @@
         text-align: center;
         padding-bottom: 2px;
         height: 500px;
+        
     }
 
     #buildtable{
         background: lightgreen;
         flex: 70%;
+        min-width: 450px;
         text-align: center;
         height: 100%;
     }
@@ -60,8 +63,10 @@
     #menu{
         background: lavender;
         flex: 30%;
+        min-width: 250px;
         text-align: center;
         height: 100%;
+
     }
 
     .options{
