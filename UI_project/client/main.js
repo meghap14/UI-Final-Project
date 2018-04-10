@@ -2,6 +2,15 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
+import './OrbitControls.js'
+//import THREE from 'three';
+
+
+// var THREE = require('three')
+// var OrbitControls = require('three-orbit-controls')(THREE)
+var THREE = require('three')
+var OrbitControls = require('three-orbit-controls')(THREE)
+OrbitControls === undefined
 
 if (Meteor.isClient) {
 
@@ -118,20 +127,155 @@ if (Meteor.isClient) {
 
 
 
-Template.hello.onCreated(function helloOnCreated() {
-  // counter starts at 0
-  this.counter = new ReactiveVar(0);
-});
+// Template.hello.onCreated(function helloOnCreated() {
+//   // counter starts at 0
+//   this.counter = new ReactiveVar(0);
+// });
 
-Template.hello.helpers({
-  counter() {
-    return Template.instance().counter.get();
-  },
-});
+// Template.hello.helpers({
+//   counter() {
+//     return Template.instance().counter.get();
+//   },
+// });
 
-Template.hello.events({
-  'click button'(event, instance) {
-    // increment the counter when button is clicked
-    instance.counter.set(instance.counter.get() + 1);
-  },
-});
+// Template.hello.events({
+//   'click button'(event, instance) {
+//     // increment the counter when button is clicked
+//     instance.counter.set(instance.counter.get() + 1);
+//   },
+// });
+
+
+
+
+
+//
+
+
+
+
+
+
+//
+
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.shadowMap.enabled = true;
+
+renderer.setClearColor(0xddeeff);
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+var objects = []; //array of all objects on map
+var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
+var mouse = new THREE.Vector2(); //holds location of mouse on screen
+var deletion = false; //delete button selected
+
+//cube impl
+var globe_geometry = new THREE.BoxGeometry(10, 10, 10);
+var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
+var cube = new THREE.Mesh(globe_geometry, globe_material);
+cube.castShadow = true;
+
+camera.position.set(50, 50, 100);
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+
+//line impl
+/*var lineGeo = new THREE.Geometry();
+var lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+lineGeo.vertices.push(new THREE.Vector3(-10, 0, 0));
+lineGeo.vertices.push(new THREE.Vector3(0, 10, 0));
+lineGeo.vertices.push(new THREE.Vector3(10, 0, 0));
+lineGeo.vertices.push(new THREE.Vector3(0, -10, 0));
+lineGeo.vertices.push(new THREE.Vector3(-10, 0, 0));
+var line = new THREE.Line(lineGeo, lineMaterial);*/
+
+var gridSize = 100;
+var gridDivs = 10;
+var grid = new THREE.GridHelper(gridSize, gridDivs);
+
+//temporary transparent block from three.js
+var rollOverGeo = new THREE.BoxGeometry(10, 10, 10);
+rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true });
+rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+scene.add(rollOverMesh);
+
+//scene.add(cube);
+//scene.add(line);
+scene.add(grid);
+
+var geometry = new THREE.PlaneBufferGeometry(100, 100);
+geometry.rotateX(- Math.PI / 2);
+plane = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ visible: true }));
+plane.receiveShadow = true;
+scene.add(plane);
+objects.push(plane);
+
+var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+scene.add(ambientLight);
+
+var light = new THREE.SpotLight(0xffffff, 1.6);
+light.position.copy(camera.position);
+light.shadowCameraVisible = true;
+scene.add(light);
+
+var controls = new OrbitControls(camera);
+controls.addEventListener('change', function () { renderer.render(scene, camera); });
+
+/*var dragControls = new THREE.DragControls(cube, camera, renderer.domElement);
+dragControls.addEventListener('dragstart', function (event) { controls.enabled = false; });
+dragControls.addEventListener('dragend', function (event) { controls.enabled = true; });*/
+document.addEventListener('mousemove', onDocumentMouseMove, false);
+document.addEventListener('mousedown', onDocumentMouseDown, false);
+renderer.render(scene, camera);
+
+function onDocumentMouseMove(event) {  //taken from threejs.org
+	event.preventDefault();
+	mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+	raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
+	var intersects = raycaster.intersectObjects(objects);
+	if (intersects.length > 0) {
+		var intersect = intersects[0];
+		rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
+		rollOverMesh.position.divideScalar(10).floor().multiplyScalar(10).addScalar(5);
+	}
+	render();
+}
+
+function onDocumentMouseDown(event) {
+	event.preventDefault();
+	mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+	raycaster.setFromCamera(mouse, camera);
+	var intersects = raycaster.intersectObjects(objects);
+	if (intersects.length > 0) {
+		var intersect = intersects[0];
+		if (deletion) {
+			//TODO
+		}
+		else {
+			var block = new THREE.Mesh(globe_geometry, globe_material);
+			block.castShadow = true;
+			block.receiveShadow = true;
+			block.position.copy(intersect.point).add(intersect.face.normal);
+			block.position.divideScalar(10).floor().multiplyScalar(10).addScalar(5);
+			scene.add(block);
+			objects.push(block);
+		}
+	}
+}
+
+function animate() {
+	requestAnimationFrame(animate);
+	cube.rotation.x += 0.05;
+	cube.rotation.y += 0.05;
+	controls.update();
+	renderer.render(scene, camera);
+}
+//animate();
+
+function render() {
+	renderer.render(scene, camera);
+}

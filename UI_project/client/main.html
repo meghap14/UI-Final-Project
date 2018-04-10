@@ -1,15 +1,17 @@
 <head>
-  <title>UI_project</title>
+  <title>Lego Builder</title>
 </head>
 
 <body>
-  {{> container}}
+    {{>table}}
+     {{> container}}
 </body>
 
 <template name="container">
     <header class="page-header bottomborders headerrow">
     <div class="headercolumn">
     <h1>Lego Builder!</h1>
+    
     </div>
     <div class="headercolumn">
     {{ #if show_login }}
@@ -45,7 +47,7 @@
     </div>
     <!-- display build here -->
     <div id="buildtable">
-        <canvas style="width: 450px; height: 500px;"></canvas>
+        <!-- {{> table}} -->
     </div>
 </div>
 
@@ -78,3 +80,12 @@
 </div>
 </template>
 
+
+<template name="table">
+    <!--<script src="js/DragControls.js"></script> -->
+    <script>
+     
+
+    </script>
+<canvas width="606" height="723" style="width: 606px; height: 723px; border:black solid 5px;"></canvas>
+</template>
