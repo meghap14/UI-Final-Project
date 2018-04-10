@@ -29,6 +29,10 @@
         <option value="pyramid">pyramid</option>
         <option value="half pyramid">half pyramid</option>
     </select>
+    <input type="radio" id="mouseControls" name="control" checked/>
+    <label for="mouseControls">Mouse</label>
+    <input type="radio" id="keyboardControls" name="control"/>
+    <label for="mouseControls">Keyboard</label>
     <div id="game">
         <script src="js/three.js"></script>
         <script src="js/OrbitControls.js"></script>
@@ -43,7 +47,8 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            var objects = []; //array of all objects on map
+            var objects = []; //array of all objects on map   THIS IS WHAT WE LOAD AND STORE
+
             var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
             var mouse = new THREE.Vector2(); //holds location of mouse on screen
             var deletion = false; //delete button selected
@@ -74,6 +79,7 @@
             var rollOverGeo = new THREE.BoxGeometry(20, 20, 20);
             rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true });
             rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+            rollOverMesh.position.addScalar(10);
             scene.add(rollOverMesh);
 
             //scene.add(cube);
@@ -141,13 +147,21 @@
                 else scene.add(rollOverMesh);
                 render();
             }, false);
+
+            var game = document.getElementById('game');
             document.addEventListener('mousemove', onDocumentMouseMove, false);
             document.addEventListener('mousedown', onDocumentMouseDown, false);
+            window.addEventListener('keydown', arrowKeys, true);
+            window.addEventListener('keyup', enterKey, false);
             window.addEventListener('resize', onWindowResize, false);
             renderer.render(scene, camera);
             //var testObj;
 
+            var mouseCont = document.getElementById('mouseControls');
+            var keyCont = document.getElementById('keyboardControls');
+
             function onDocumentMouseMove(event) {  //taken from threejs.org
+                if (mouseCont.checked) {
                     event.preventDefault();
                     mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
@@ -159,44 +173,97 @@
                         rollOverMesh.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
                     }
                     render();
+                }
             }
 
             function onDocumentMouseDown(event) {
                 //event.preventDefault();
-                mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
-                raycaster.setFromCamera(mouse, camera);
-                var intersects = raycaster.intersectObjects(objects);
-                console.log(intersects);
-                if (intersects.length > 0) {
-                    var intersect = intersects[0];
-                    //testObj = intersect.object;
-                    //console.log("before delete: " + testObj.parameters);
-                    if (deletion) {
-                        if (intersect.object != plane) {
-                            scene.remove(intersect.object);
-                            objects.splice(objects.indexOf(intersect.object), 1);
-                            //delete intersect.object;
-                            //console.log("after delete: " + testObj.parameters);
-                            //console.log(objects);
+                if (mouseCont.checked) {
+                    mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+                    raycaster.setFromCamera(mouse, camera);
+                    var intersects = raycaster.intersectObjects(objects);
+                    console.log(intersects);
+                    if (intersects.length > 0) {
+                        var intersect = intersects[0];
+                        //testObj = intersect.object;
+                        //console.log("before delete: " + testObj.parameters);
+                        if (deletion) {
+                            if (intersect.object != plane) {
+                                scene.remove(intersect.object);
+                                objects.splice(objects.indexOf(intersect.object), 1);
+                                //delete intersect.object;
+                                //console.log("after delete: " + testObj.parameters);
+                                //console.log(objects);
+                            }
+                        }
+                        else {
+                            cur_geo = globe_geometry;
+                            /*if (dropColor.value == "stone") {
+                                cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
+                            }*/
+                            var cur_color = new THREE.MeshLambertMaterial({ color: dropColor.value });
+                            block = new THREE.Mesh(cur_geo, cur_color);
+                            block.castShadow = true;
+                            block.receiveShadow = true;
+                            block.position.copy(intersect.point).add(intersect.face.normal);
+                            block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+                            scene.add(block);
+                            objects.push(block);
+                            console.log("dropped block!");
                         }
                     }
-                    else {
-                        cur_geo = globe_geometry;
-                        /*if (dropColor.value == "stone") {
-                            cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
-                        }*/
-                        var cur_color = new THREE.MeshLambertMaterial({ color: dropColor.value });
-                        block = new THREE.Mesh(cur_geo, cur_color);
-                        block.castShadow = true;
-                        block.receiveShadow = true;
-                        block.position.copy(intersect.point).add(intersect.face.normal);
-                        block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
-                        scene.add(block);
-                        objects.push(block);
-                        console.log("dropped block!");
+                    render();
+                }
+            }
+
+            function arrowKeys(event) {
+                if (keyCont.checked) {
+                    if (event.keyCode == 37) {  //left arrow
+                        event.preventDefault();
+                        event.stopPropagation();
+                        rollOverMesh.translateX(-5);
+                    }
+                    else if (event.keyCode == 38) { //up arrow
+                        event.preventDefault();
+                        event.stopPropagation();
+                        rollOverMesh.translateZ(-5);
+                    }
+                    else if (event.keyCode == 39) { //right arrow
+                        event.preventDefault();
+                        event.stopPropagation();
+                        rollOverMesh.translateX(5);
+                    }
+                    else if (event.keyCode == 40) { //down arrow
+                        event.preventDefault();
+                        event.stopPropagation();
+                        rollOverMesh.translateZ(5);
+
                     }
                 }
                 render();
+                return false;
+            }
+
+            function enterKey(event) {
+                if (keyCont.checked) {
+                    event.preventDefault();
+                    if (event.keyCode == 13) {
+                        var keyGeo = globe_geometry;
+                        /*if (dropColor.value == "stone") {
+                            cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
+                        }*/
+                        var keyColor = new THREE.MeshLambertMaterial({ color: dropColor.value });
+                        block = new THREE.Mesh(keyGeo, keyColor);
+                        block.castShadow = true;
+                        block.receiveShadow = true;
+                        block.position.setFromMatrixPosition(rollOverMesh.matrixWorld)
+                        //block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+                        scene.add(block);
+                        objects.push(block);
+                        console.log("dropped block!");
+                        console.log("enter hit!");
+                    }
+                }
             }
 
             function onWindowResize() {
