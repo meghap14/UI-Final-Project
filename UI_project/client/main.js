@@ -3,17 +3,17 @@ import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
 //import THREE from 'three';
-var THREE = require('three')
-var OrbitControls = require('three-orbit-controls')(THREE)
-OrbitControls === undefined
+var THREE = require('three');
+var OrbitControls = require('three-orbit-controls')(THREE);
+OrbitControls === undefined;
 
 
 
 // var THREE = require('three')
 // var OrbitControls = require('three-orbit-controls')(THREE)
-var THREE = require('three')
-var OrbitControls = require('three-orbit-controls')(THREE)
-OrbitControls === undefined
+var THREE = require('three');
+var OrbitControls = require('three-orbit-controls')(THREE);
+OrbitControls === undefined;
 
 if (Meteor.isClient) {
 
