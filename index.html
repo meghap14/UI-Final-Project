@@ -84,7 +84,7 @@
             //pyramid implementation
             var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
             //pyramid.rotateY(Math.PI * 0.5);
-            var cylinder = new THREE.CylinderGeometry(5, 10, 20, 100, false);
+            var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
 
             var halfPyramid = new THREE.Geometry();
             halfPyramid.vertices = [
@@ -133,22 +133,29 @@
 
 
             //Javascript event listeners
+            var deleteEvent = document.getElementById("delete");
+            deleteEvent.addEventListener('mouseup', function () {
+                deletion = !deletion;
+                if (deletion) scene.remove(rollOverMesh);
+                else scene.add(rollOverMesh);
+            }, false);
             document.addEventListener('mousemove', onDocumentMouseMove, false);
             document.addEventListener('mousedown', onDocumentMouseDown, false);
             window.addEventListener('resize', onWindowResize, false);
             renderer.render(scene, camera);
 
             function onDocumentMouseMove(event) {  //taken from threejs.org
-                event.preventDefault();
-                mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
-                raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
-                var intersects = raycaster.intersectObjects(objects);
-                if (intersects.length > 0) {
-                    var intersect = intersects[0];
-                    rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-                    rollOverMesh.position.divideScalar(10).floor().multiplyScalar(10).addScalar(5);
-                }
-                render();
+                    event.preventDefault();
+                    mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+                    raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
+                    var intersects = raycaster.intersectObjects(objects);
+                    console.log(intersects);
+                    if (intersects.length > 0 && !deletion) {
+                        var intersect = intersects[0];
+                        rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
+                        rollOverMesh.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+                    }
+                    render();
             }
 
             function onDocumentMouseDown(event) {
@@ -159,7 +166,10 @@
                 if (intersects.length > 0) {
                     var intersect = intersects[0];
                     if (deletion) {
-                        //TODO
+                        if (intersect.object != plane) {
+                            scene.remove(intersect.object);
+                            objects.splice(intersect.object, 1);
+                        }
                     }
                     else {
                         cur_geo = globe_geometry;
@@ -171,11 +181,13 @@
                         block.castShadow = true;
                         block.receiveShadow = true;
                         block.position.copy(intersect.point).add(intersect.face.normal);
-                        block.position.divideScalar(10).floor().multiplyScalar(10).addScalar(5);
+                        block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
                         scene.add(block);
                         objects.push(block);
+                        console.log("dropped block!");
                     }
                 }
+                render();
             }
 
             function onWindowResize() {
