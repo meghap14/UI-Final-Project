@@ -80,10 +80,10 @@
             //scene.add(line);
             scene.add(grid);
 
+            var square = new THREE.BoxGeometry(20, 20, 20);
+            var rectangle = new THREE.BoxGeometry(20, 20, 40);
             var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
-            //pyramid implementation
             var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
-            //pyramid.rotateY(Math.PI * 0.5);
             var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
 
             var halfPyramid = new THREE.Geometry();
@@ -127,8 +127,8 @@
             light.shadowCameraVisible = true;
             scene.add(light);
 
-            var dropColor = document.getElementById('color')
-            var dropGeo = document.getElementById('geo')
+            var dropColor = document.getElementById('color');
+            var dropGeo = document.getElementById('geo');
 
 
 
@@ -136,20 +136,23 @@
             var deleteEvent = document.getElementById("delete");
             deleteEvent.addEventListener('mouseup', function () {
                 deletion = !deletion;
+                console.log("delete hit!");
                 if (deletion) scene.remove(rollOverMesh);
                 else scene.add(rollOverMesh);
+                render();
             }, false);
             document.addEventListener('mousemove', onDocumentMouseMove, false);
             document.addEventListener('mousedown', onDocumentMouseDown, false);
             window.addEventListener('resize', onWindowResize, false);
             renderer.render(scene, camera);
+            //var testObj;
 
             function onDocumentMouseMove(event) {  //taken from threejs.org
                     event.preventDefault();
                     mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     var intersects = raycaster.intersectObjects(objects);
-                    console.log(intersects);
+                    //console.log(intersects);
                     if (intersects.length > 0 && !deletion) {
                         var intersect = intersects[0];
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
@@ -163,12 +166,18 @@
                 mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
                 raycaster.setFromCamera(mouse, camera);
                 var intersects = raycaster.intersectObjects(objects);
+                console.log(intersects);
                 if (intersects.length > 0) {
                     var intersect = intersects[0];
+                    //testObj = intersect.object;
+                    //console.log("before delete: " + testObj.parameters);
                     if (deletion) {
                         if (intersect.object != plane) {
                             scene.remove(intersect.object);
-                            objects.splice(intersect.object, 1);
+                            objects.splice(objects.indexOf(intersect.object), 1);
+                            //delete intersect.object;
+                            //console.log("after delete: " + testObj.parameters);
+                            //console.log(objects);
                         }
                     }
                     else {
@@ -176,7 +185,7 @@
                         /*if (dropColor.value == "stone") {
                             cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
                         }*/
-                        cur_color = new THREE.MeshLambertMaterial({ color: dropColor.value})
+                        var cur_color = new THREE.MeshLambertMaterial({ color: dropColor.value });
                         block = new THREE.Mesh(cur_geo, cur_color);
                         block.castShadow = true;
                         block.receiveShadow = true;
@@ -198,15 +207,21 @@
 
             function SwitchGeo(val) {
                 if (val == "square") {
-                    globe_geometry = new THREE.BoxGeometry(20, 20, 20);
-                    rollOverGeo = new THREE.BoxGeometry(20, 20, 20);
-                    rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                }
-                else if (val == "rectangle") {
-                    globe_geometry = new THREE.BoxGeometry(20, 20, 40);
+                    globe_geometry = square;
                     position = rollOverMesh.position;
                     scene.remove(rollOverMesh);
-                    rollOverGeo = new THREE.BoxGeometry(20, 20, 40);
+                    delete rollOverMesh;
+                    rollOverGeo = square;
+                    rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+                    rollOverMesh.position.set(position);
+                    scene.add(rollOverMesh);
+                }
+                else if (val == "rectangle") {
+                    globe_geometry = rectangle;
+                    position = rollOverMesh.position;
+                    scene.remove(rollOverMesh);
+                    delete rollOverMesh;
+                    rollOverGeo = rectangle;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
                     rollOverMesh.position.set(position);
                     scene.add(rollOverMesh);
@@ -215,6 +230,7 @@
                     globe_geometry = quarterBlock;
                     position = rollOverMesh.position;
                     scene.remove(rollOverMesh);
+                    delete rollOverMesh;
                     rollOverGeo = quarterBlock;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
                     rollOverMesh.position.set(position);
@@ -225,6 +241,7 @@
                     globe_geometry = pyramid;
                     position = rollOverMesh.position;
                     scene.remove(rollOverMesh);
+                    delete rollOverMesh;
                     rollOverGeo = pyramid;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
                     rollOverMesh.position.set(position);
@@ -234,6 +251,7 @@
                     globe_geometry = halfPyramid;
                     position = rollOverMesh.position;
                     scene.remove(rollOverMesh);
+                    delete rollOverMesh;
                     rollOverGeo = halfPyramid;
                     console.log(halfPyramid);
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
@@ -244,6 +262,7 @@
                     globe_geometry = cylinder;
                     position = rollOverMesh.position;
                     scene.remove(rollOverMesh);
+                    delete rollOverMesh;
                     rollOverGeo = cylinder;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
                     rollOverMesh.position.set(position);
