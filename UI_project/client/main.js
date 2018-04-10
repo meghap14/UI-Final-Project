@@ -2,8 +2,11 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
-import './OrbitControls.js'
 //import THREE from 'three';
+var THREE = require('three')
+var OrbitControls = require('three-orbit-controls')(THREE)
+OrbitControls === undefined
+
 
 
 // var THREE = require('three')
@@ -166,7 +169,15 @@ renderer.shadowMap.enabled = true;
 
 renderer.setClearColor(0xddeeff);
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+
+//document.getElementById("canvashere").appendChild(renderer.domElement); 
+var container = document.getElementById("canvashere");
+if (container !== null) {
+	container.appendChild(renderer.domElement);
+} else console.log("Does not exist");
+
+
+//document.body.appendChild(renderer.domElement);
 
 var objects = []; //array of all objects on map
 var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
