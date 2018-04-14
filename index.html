@@ -28,6 +28,7 @@
         <option value="cylinder">cylinder</option>
         <option value="pyramid">pyramid</option>
         <option value="half pyramid">half pyramid</option>
+        <option value="sphere">sphere</option>
     </select>
     <input type="radio" id="mouseControls" name="control" checked/>
     <label for="mouseControls">Mouse</label>
@@ -79,18 +80,20 @@
             var rollOverGeo = new THREE.BoxGeometry(20, 20, 20);
             rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true });
             rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+            rollOverMesh.name = 'squareMesh';
             rollOverMesh.position.addScalar(10);
             scene.add(rollOverMesh);
 
             //scene.add(cube);
             //scene.add(line);
             scene.add(grid);
-
+            var unitBlock = new THREE.BoxGeometry(10, 10, 10);
             var square = new THREE.BoxGeometry(20, 20, 20);
             var rectangle = new THREE.BoxGeometry(20, 20, 40);
             var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
             var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
             var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
+            var sphere = new THREE.SphereGeometry(5, 40, 40);
 
             var halfPyramid = new THREE.Geometry();
             halfPyramid.vertices = [
@@ -122,6 +125,7 @@
             geometry.rotateX(- Math.PI / 2);
             plane = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ visible: true }));
             plane.receiveShadow = true;
+            plane.name = "plane";
             scene.add(plane);
             objects.push(plane);
 
@@ -136,15 +140,25 @@
             var dropColor = document.getElementById('color');
             var dropGeo = document.getElementById('geo');
 
-
+            var mouseCont = document.getElementById('mouseControls');
+            var keyCont = document.getElementById('keyboardControls');
 
             //Javascript event listeners
             var deleteEvent = document.getElementById("delete");
             deleteEvent.addEventListener('mouseup', function () {
                 deletion = !deletion;
                 console.log("delete hit!");
-                if (deletion) scene.remove(rollOverMesh);
-                else scene.add(rollOverMesh);
+                if (deletion) {
+                    SwitchGeo("unitBlock");
+                    console.log("switch to unit block");
+                }
+                else {
+                    SwitchGeo(dropGeo.value);
+                    rollOverMesh.translateY(5);
+                }
+                //if (deletion && !keyCont.checked) scene.remove(rollOverMesh);
+                //else scene.add(rollOverMesh);
+
                 render();
             }, false);
 
@@ -157,8 +171,7 @@
             renderer.render(scene, camera);
             //var testObj;
 
-            var mouseCont = document.getElementById('mouseControls');
-            var keyCont = document.getElementById('keyboardControls');
+
 
             function onDocumentMouseMove(event) {  //taken from threejs.org
                 if (mouseCont.checked) {
@@ -167,10 +180,11 @@
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     var intersects = raycaster.intersectObjects(objects);
                     //console.log(intersects);
-                    if (intersects.length > 0 && !deletion) {
+                    if (intersects.length > 0) {
                         var intersect = intersects[0];
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
                         rollOverMesh.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+                        if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
                     }
                     render();
                 }
@@ -203,6 +217,9 @@
                             }*/
                             var cur_color = new THREE.MeshLambertMaterial({ color: dropColor.value });
                             block = new THREE.Mesh(cur_geo, cur_color);
+                            var name = rollOverMesh.name.slice(0, 5);
+                            block.name = name;
+                            console.log(block.name);
                             block.castShadow = true;
                             block.receiveShadow = true;
                             block.position.copy(intersect.point).add(intersect.face.normal);
@@ -217,129 +234,280 @@
             }
 
             function arrowKeys(event) {
+                render();
                 if (keyCont.checked) {
+                    event.preventDefault();
+                    event.stopPropagation();
                     if (event.keyCode == 37) {  //left arrow
-                        event.preventDefault();
-                        event.stopPropagation();
                         rollOverMesh.translateX(-5);
                     }
                     else if (event.keyCode == 38) { //up arrow
-                        event.preventDefault();
-                        event.stopPropagation();
                         rollOverMesh.translateZ(-5);
                     }
                     else if (event.keyCode == 39) { //right arrow
-                        event.preventDefault();
-                        event.stopPropagation();
                         rollOverMesh.translateX(5);
                     }
                     else if (event.keyCode == 40) { //down arrow
-                        event.preventDefault();
-                        event.stopPropagation();
                         rollOverMesh.translateZ(5);
 
                     }
+                    //if reticle does not collide with something, fall until it hits something
+                    if (event.keyCode < 41 && event.keyCode > 36) {
+                        while (!isCollision() && rollOverMesh.position.y > 10) {
+                            rollOverMesh.translateY(-5);
+                        }
+
+                        //patch to account for unit block translation
+
+                        var collisionResults = collisionDetection();
+                        var notAtTop = true;
+                        while (notAtTop) {
+                            notAtTop = false;
+                            for (i = 0; i < collisionResults.length; ++i) {
+                                if (collisionResults[i].object.position.y >= rollOverMesh.position.y) {
+                                    notAtTop = true;
+                                    rollOverMesh.translateY(20 + collisionResults[i].object.position.y - rollOverMesh.position.y);
+                                    //if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(5);
+                                    console.log("looping?");
+                                    break;
+                                }
+                            }
+                            collisionResults = collisionDetection();
+                        }
+                    }
+                    render();
                 }
-                render();
-                return false;
             }
 
             function enterKey(event) {
                 if (keyCont.checked) {
                     event.preventDefault();
                     if (event.keyCode == 13) {
-                        var keyGeo = globe_geometry;
-                        /*if (dropColor.value == "stone") {
-                            cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
-                        }*/
-                        var keyColor = new THREE.MeshLambertMaterial({ color: dropColor.value });
-                        block = new THREE.Mesh(keyGeo, keyColor);
-                        block.castShadow = true;
-                        block.receiveShadow = true;
-                        block.position.setFromMatrixPosition(rollOverMesh.matrixWorld)
-                        //block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
-                        scene.add(block);
-                        objects.push(block);
-                        console.log("dropped block!");
-                        console.log("enter hit!");
+                        if (deletion) {
+                            for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
+                                var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
+                                var globalVertex = localVertex.applyMatrix4(rollOverMesh.matrix);
+                                var directionVector = globalVertex.sub(rollOverMesh.position);
+                                raycaster.set(rollOverMesh.position, directionVector.clone().normalize());
+                                var collisionResults = raycaster.intersectObjects(objects);
+                                console.log("collision size:" + collisionResults.length);
+                                if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && collisionResults[0].object != plane) {
+                                    scene.remove(collisionResults[0].object);
+                                    console.log(collisionResults[0].object);
+                                    objects.splice(objects.indexOf(collisionResults[0].object), 1);
+                                }
+                            }
+                        }
+                        else {
+                            var keyGeo = globe_geometry;
+                            /*if (dropColor.value == "stone") {
+                                cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
+                            }*/
+                            var keyColor = new THREE.MeshLambertMaterial({ color: dropColor.value });
+                            block = new THREE.Mesh(keyGeo, keyColor);
+                            var name = rollOverMesh.name.slice(0, 5);
+                            console.log(name);
+                            block.name = name;
+                            block.castShadow = true;
+                            block.receiveShadow = true;
+                            block.position.setFromMatrixPosition(rollOverMesh.matrixWorld)
+                            //block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+                            scene.add(block);
+                            objects.push(block);
+                        }
+                    }
+                    render();
+                }
+            }
+
+            //returns list of all objects (including plane) reticle collides with
+            function collisionDetection() {
+                var collisionResults = [];
+                for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
+                    var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
+                    var globalVertex = localVertex.applyMatrix4(rollOverMesh.matrix);
+                    var directionVector = globalVertex.sub(rollOverMesh.position);
+                    raycaster.set(rollOverMesh.position, directionVector.clone().normalize());
+                    if (raycaster.intersectObjects(objects).length > 0) {
+                        intersect = raycaster.intersectObjects(objects);
+                        console.log(intersect);
+                        for (i = 0; i < intersect.length; ++i) {
+                            if (intersect[i].object.name != "plane")
+                                collisionResults.push(intersect[i]);
+                        }
                     }
                 }
+                console.log(collisionResults);
+                return collisionResults;
+            }
+
+            //faster version of collision detection that stops after first collision
+            function isCollision() {
+                console.log("isCollision called");
+                for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
+                    var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
+                    var globalVertex = localVertex.applyMatrix4(rollOverMesh.matrix);
+                    var directionVector = globalVertex.sub(rollOverMesh.position);
+                    raycaster.set(rollOverMesh.position, directionVector.clone().normalize());
+                    intersects = raycaster.intersectObjects(objects);
+                    console.log("before intersect splicing for loop");
+                    for (i = 0; i < intersects.length; ++i) {
+                        if (intersects[i].object.name == "plane") {
+                            intersects.splice(i, 1);
+                        }
+                    }
+                    if (intersects.length >= 1) return true;
+                }
+                return false;
             }
 
             function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
+                render();
             }
 
             function SwitchGeo(val) {
-                if (val == "square") {
+                if (val == "square" && !deletion) {
                     globe_geometry = square;
                     position = rollOverMesh.position;
+                    console.log(position);
                     scene.remove(rollOverMesh);
                     delete rollOverMesh;
                     rollOverGeo = square;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                    rollOverMesh.position.set(position);
+                    rollOverMesh.name = "squareMesh";
                     scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
+
                 }
-                else if (val == "rectangle") {
+                else if (val == "rectangle" && !deletion) {
                     globe_geometry = rectangle;
                     position = rollOverMesh.position;
+                    console.log(position);
+
                     scene.remove(rollOverMesh);
                     delete rollOverMesh;
                     rollOverGeo = rectangle;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                    rollOverMesh.position.set(position);
+                    rollOverMesh.name = "rectMesh";
                     scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
+
                 }
-                else if (val == "quarterBlock") {
+                else if (val == "quarterBlock" && !deletion) {
                     globe_geometry = quarterBlock;
                     position = rollOverMesh.position;
+                    console.log(position);
+
                     scene.remove(rollOverMesh);
                     delete rollOverMesh;
                     rollOverGeo = quarterBlock;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                    rollOverMesh.position.set(position);
+                    rollOverMesh.name = "quarterMesh";
                     scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
+
                 }
-                
-                else if (val == "pyramid") {
+
+                else if (val == "pyramid" && !deletion) {
                     globe_geometry = pyramid;
                     position = rollOverMesh.position;
+                    console.log(position);
+
                     scene.remove(rollOverMesh);
                     delete rollOverMesh;
                     rollOverGeo = pyramid;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                    rollOverMesh.position.set(position);
+                    rollOverMesh.name = "pyramidMesh";
                     scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
                 }
-                else if (val == "half pyramid") {
+                else if (val == "half pyramid"  && !deletion) {
                     globe_geometry = halfPyramid;
                     position = rollOverMesh.position;
+                    console.log(position);
+
                     scene.remove(rollOverMesh);
                     delete rollOverMesh;
                     rollOverGeo = halfPyramid;
                     console.log(halfPyramid);
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                    rollOverMesh.position.set(position);
+                    rollOverMesh.name = "hPyramidMesh";
                     scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
                 }
-                else if (val == "cylinder") {
+                else if (val == "cylinder" && !deletion) {
                     globe_geometry = cylinder;
+                    //save current position of rollOverMesh for replacement
                     position = rollOverMesh.position;
+                    console.log(position);
+
                     scene.remove(rollOverMesh);
                     delete rollOverMesh;
                     rollOverGeo = cylinder;
                     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-                    rollOverMesh.position.set(position);
+                    rollOverMesh.name = "cylMesh";
                     scene.add(rollOverMesh);
+                    //put rollOverMesh at old spot
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
+                }
+                else if (val == "sphere" && !deletion) {
+                    globe_geometry = sphere;
+                    position = rollOverMesh.position;
+                    console.log(position);
+
+                    scene.remove(rollOverMesh);
+                    delete rollOverMesh;
+                    rollOverGeo = sphere;
+                    rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+                    rollOverMesh.name = "sphereMesh";
+                    scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
+                }
+                else if (val == "unitBlock") {
+                    position = rollOverMesh.position;
+                    console.log(position);
+
+                    scene.remove(rollOverMesh);
+                    delete rollOverMesh;
+                    rollOverGeo = unitBlock;
+                    rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+                    rollOverMesh.name = "unitBlockMesh";
+                    scene.add(rollOverMesh);
+                    rollOverMesh.position.setX(position.getComponent(0));
+                    rollOverMesh.position.setY(position.getComponent(1));
+                    rollOverMesh.position.setZ(position.getComponent(2));
+                    render();
                 }
             }
 
             function render() {
                 renderer.render(scene, camera);
             }
+
 
             //allows camera movement
             var controls = new THREE.OrbitControls(camera, renderer.domElement);
