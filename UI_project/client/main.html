@@ -38,8 +38,13 @@
 
     <div id="menu">
         <div id="blocks">
-			<button id="delete">toggle delete</button>
-			<br>
+		<input type="radio" id='add' name='mode' value='add' checked/>
+		<label for="add">Add Object</label>
+		<input type="radio" id="move" name="mode" value="move"/>
+		<label for="move">Move Object</label>
+		<input type="radio" id="delete" name="mode" value="delete"/>
+		<label for="delete">Delete Object</label>			
+		<br>
 		<select id="color">
         <!--<option value="stone">stone</option>-->
         <option value="red">red</option>
