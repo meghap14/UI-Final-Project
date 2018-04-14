@@ -3,7 +3,6 @@
 </head>
 
 <body>
-    {{>table}}
     {{> container}}
 </body>
 
@@ -36,8 +35,38 @@
 <template name="interface">
 <!-- display blocks here and save build -->
 <div class="row">
+
     <div id="menu">
         <div id="blocks">
+			<button id="delete">toggle delete</button>
+			<br>
+		<select id="color">
+        <!--<option value="stone">stone</option>-->
+        <option value="red">red</option>
+        <option value="orange">orange</option>
+        <option value="yellow">yellow</option>
+        <option value="green">green</option>
+        <option value="blue">blue</option>
+        <option value="purple">purple</option>
+        <option value="white">white</option>
+        <option value="black">black</option>
+        <option value="chocolate">brown</option>
+        <option value="gray">gray</option>
+    </select>
+    <select id="geo">
+        <option value="square">square</option>
+        <option value="rectangle">rectangle</option>
+        <option value="quarterBlock">quarter-block</option>
+        <option value="cylinder">cylinder</option>
+        <option value="pyramid">pyramid</option>
+        <option value="half pyramid">half pyramid</option>
+        <option value="sphere">sphere</option>
+    </select>
+	<br>
+    <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
+    <label for="mouseControls">Mouse</label>
+    <input type="radio" id="keyboardControls" name="control" value="keyboard"/>
+    <label for="keyboardControls">Keyboard</label>
         </div>
         <div >
             <button class="options" id="create">Save</button>
@@ -82,7 +111,6 @@
 
 
 <template name="table">
-    <div id="canvashere">
-<!-- <canvas  width="606" height="723" style="width: 606px; height: 723px; border:black solid 5px;"></canvas> -->
-    </div>
+        <div  id="canvas" style="width:100%; height:100%; border:black solid 5px;">
+		</div>
 </template>
