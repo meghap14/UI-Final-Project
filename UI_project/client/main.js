@@ -250,8 +250,9 @@ if (Meteor.isClient) {
 			*/
 $(document).ready(function () {
 			container = document.getElementById("canvas");
+			camera.aspect = $(container).width() / $(container).height();
+            camera.updateProjectionMatrix();
 			renderer.setSize($(container).width(), $(container).height());
-			console.log(renderer);
 	        container.appendChild(renderer.domElement);
 			//javascript event listeners
             document.addEventListener('mousemove', onDocumentMouseMove, false);
@@ -500,10 +501,11 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
             }
 
             function onWindowResize() {
-                camera.aspect = window.innerWidth / window.innerHeight;
+				container = document.getElementById("canvas");
+                camera.aspect = $(container).width() / $(container).height();
                 camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                render();
+				renderer.setSize($(container).width(), $(container).height());                
+				render();
             }
 
             function SwitchGeo(val) {
