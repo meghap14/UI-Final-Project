@@ -122,11 +122,11 @@ if (Meteor.isClient) {
 
 
 
+
 // Template.hello.onCreated(function helloOnCreated() {
 //   // counter starts at 0
 //   this.counter = new ReactiveVar(0);
 // });
-
 
 // Template.hello.helpers({
 //   counter() {
@@ -195,7 +195,6 @@ var sphere = new THREE.SphereGeometry(5, 10, 10);
 var tile = new THREE.PlaneGeometry(10,10);
 tile.rotateX(-Math.PI / 2);
 
-
 var halfPyramid = new THREE.Geometry();
 halfPyramid.vertices = [
     new THREE.Vector3(0, 0, 0),    //0 
@@ -253,7 +252,6 @@ Template.interface.onRendered(function () {
     //javascript event listeners
     $('#canvas').mousemove(onDocumentMouseMove);
     $('#canvas').click(onDocumentMouseDown);
-
     window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('keyup', enterKey, false);
     window.addEventListener('resize', onWindowResize, false);
@@ -431,7 +429,6 @@ function enterKey(event) {
                                 console.log("collision size:" + collisionResults.length);
                                 if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() 
 									&& collisionResults[0].object != plane && collisionResults[0].object.geometry != tile) {
-
                                     setRollOverFromBlock(collisionResults[0].object);
 									scene.remove(collisionResults[0].object);
                                     console.log(collisionResults[0].object);

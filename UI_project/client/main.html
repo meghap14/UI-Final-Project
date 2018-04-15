@@ -7,11 +7,11 @@
 </body>
 
 <template name="container">
-    <!-- {{ #if show_login }}
+    {{ #if show_login }}
         {{> login}}
-    {{ else }} -->
+    {{ else }}
         {{> main_page}}
-    <!-- {{ /if }}  -->
+    {{ /if }} 
 </template>
 
 <template name="main_page">
@@ -68,7 +68,7 @@
             <option value="black">black</option>
             <option value="chocolate">brown</option>
             <option value="gray">gray</option>
-        </select>        
+        </select>
         </div>
 
         <div class="shape">
@@ -76,10 +76,12 @@
             <option value="square">square</option>
             <option value="rectangle">rectangle</option>
             <option value="quarterBlock">quarter-block</option>
+            <option value="wall">wall</option>
             <option value="cylinder">cylinder</option>
             <option value="pyramid">pyramid</option>
             <option value="half pyramid">half pyramid</option>
             <option value="sphere">sphere</option>
+            <option value="tile">tile</option>
         </select>
         </div>
         <ul class="actions">
@@ -92,11 +94,11 @@
                 <label for="keyboardControls">Keyboard</label><br/>
             </li>
         </ul>
+        <button id="rotate">Rotate</button>
         <button class="options" id="create">Save</button>
         <br>
         <button class="options" id="create">Clear</button>
     </div>
-
 
     <!-- display build here -->
     <div id="buildtable">
