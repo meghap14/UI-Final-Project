@@ -119,126 +119,109 @@ if (Meteor.isClient) {
 
 }
 
-
-
-
-
-// Template.hello.onCreated(function helloOnCreated() {
-//   // counter starts at 0
-//   this.counter = new ReactiveVar(0);
-// });
-
-// Template.hello.helpers({
-//   counter() {
-//     return Template.instance().counter.get();
-//   },
-// });
-
-// Template.hello.events({
-//   'click button'(event, instance) {
-//     // increment the counter when button is clicked
-//     instance.counter.set(instance.counter.get() + 1);
-//   },
-// });
-
 //////////////////////
 //THREE JS variables//
 //////////////////////
-var dropColor = "red";
-var dropGeo = "square";
-var curControl = "mouse";
-var mode = "add"; //checks insertion mode.  Values are "add" "move" "delete"
-var isMoving = false;  //checks if, while in 'move' mode you are moving or selecting an object
-var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
-var mouse = new THREE.Vector2(); //holds location of mouse on screen
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
-var renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.shadowMap.enabled = true;
 
-renderer.setClearColor(0xddeeff);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-
-//THIS IS WHAT WE LOAD AND STORE
-var objects = []; //array of all objects on map
-
-//cube impl
-var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
-var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
-//var stone_texture = new THREE.TextureLoader().load('add later');
-
-camera.position.set(100, 100, 200);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-var gridSize = 200;
-var gridDivs = 20;
-var grid = new THREE.GridHelper(gridSize, gridDivs);
-
-//temporary transparent block from three.js
-var rollOverGeo = new THREE.BoxGeometry(20, 20, 20);
-rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-rollOverMesh.name = 'squareMesh';
-rollOverMesh.position.addScalar(10);
-scene.add(rollOverMesh);
-
-scene.add(grid);
-var unitBlock = new THREE.BoxGeometry(10, 10, 10);
-var square = new THREE.BoxGeometry(20, 20, 20);
-var rectangle = new THREE.BoxGeometry(20, 20, 40);
-var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
-var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
-var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
-var sphere = new THREE.SphereGeometry(5, 40, 40);
-
-var halfPyramid = new THREE.Geometry();
-halfPyramid.vertices = [
-    new THREE.Vector3(0, 0, 0),    //0 
-    new THREE.Vector3(20, 0, 0),   //1
-    new THREE.Vector3(20, 0, 20),   //2
-    new THREE.Vector3(0, 0, 20),  //3
-    new THREE.Vector3(20, 20, 0),  //4 
-    new THREE.Vector3(20, 20, 20)  //5
-];
-var face = new THREE.Face3(0, 1, 2);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(0, 2, 3);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(0, 4, 5);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(0, 3, 5);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(0, 1, 4);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(3, 2, 5);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(1, 2, 4);
-halfPyramid.faces.push(face);
-face = new THREE.Face3(2, 4, 5);
-halfPyramid.faces.push(face);
-
-var geometry = new THREE.PlaneBufferGeometry(200, 200);
-geometry.rotateX(- Math.PI / 2);
-plane = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ visible: true }));
-plane.receiveShadow = true;
-plane.name = "plane";
-scene.add(plane);
-objects.push(plane);
-
-var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-scene.add(ambientLight);
-
-var light = new THREE.SpotLight(0xffffff, 1.6);
-light.position.copy(camera.position);
-light.shadowCameraVisible = true;
-scene.add(light);
-
-//allows camera movement
-var controls = new OrbitControls(camera, renderer.domElement);
-controls.addEventListener('change', function () { renderer.render(scene, camera); });
 
 $(document).ready(function () {
+
+
+
+    dropColor = "red";
+    dropGeo = "square";
+    curControl = "mouse";
+    mode = "add"; //checks insertion mode.  Values are "add" "move" "delete"
+    isMoving = false;  //checks if, while in 'move' mode you are moving or selecting an object
+    raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
+    mouse = new THREE.Vector2(); //holds location of mouse on screen
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.shadowMap.enabled = true;
+
+    renderer.setClearColor(0xddeeff);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+    //THIS IS WHAT WE LOAD AND STORE
+    var objects = []; //array of all objects on map
+
+    //cube impl
+    var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
+    var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
+    //var stone_texture = new THREE.TextureLoader().load('add later');
+
+    camera.position.set(100, 100, 200);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    var gridSize = 200;
+    var gridDivs = 20;
+    var grid = new THREE.GridHelper(gridSize, gridDivs);
+
+    //temporary transparent block from three.js
+    var rollOverGeo = new THREE.BoxGeometry(20, 20, 20);
+    rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
+    rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+    rollOverMesh.name = 'squareMesh';
+    rollOverMesh.position.addScalar(10);
+    scene.add(rollOverMesh);
+
+    scene.add(grid);
+    var unitBlock = new THREE.BoxGeometry(10, 10, 10);
+    var square = new THREE.BoxGeometry(20, 20, 20);
+    var rectangle = new THREE.BoxGeometry(20, 20, 40);
+    var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
+    var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
+    var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
+    var sphere = new THREE.SphereGeometry(5, 40, 40);
+
+    var halfPyramid = new THREE.Geometry();
+    halfPyramid.vertices = [
+        new THREE.Vector3(0, 0, 0),    //0 
+        new THREE.Vector3(20, 0, 0),   //1
+        new THREE.Vector3(20, 0, 20),   //2
+        new THREE.Vector3(0, 0, 20),  //3
+        new THREE.Vector3(20, 20, 0),  //4 
+        new THREE.Vector3(20, 20, 20)  //5
+    ];
+    var face = new THREE.Face3(0, 1, 2);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(0, 2, 3);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(0, 4, 5);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(0, 3, 5);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(0, 1, 4);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(3, 2, 5);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(1, 2, 4);
+    halfPyramid.faces.push(face);
+    face = new THREE.Face3(2, 4, 5);
+    halfPyramid.faces.push(face);
+
+    var geometry = new THREE.PlaneBufferGeometry(200, 200);
+    geometry.rotateX(- Math.PI / 2);
+    plane = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ visible: true }));
+    plane.receiveShadow = true;
+    plane.name = "plane";
+    scene.add(plane);
+    objects.push(plane);
+
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambientLight);
+
+    var light = new THREE.SpotLight(0xffffff, 1.6);
+    light.position.copy(camera.position);
+    light.shadowCameraVisible = true;
+    scene.add(light);
+
+    //allows camera movement
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.addEventListener('change', function () { renderer.render(scene, camera); });
+
 	container = document.getElementById("canvas");
 	camera.aspect = $(container).width() / $(container).height();
     camera.updateProjectionMatrix();
