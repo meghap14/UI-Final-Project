@@ -37,46 +37,59 @@
 
     <div id="menu">
         <div id="blocks">
-		<input type="radio" id='add' name='mode' value='add' checked/>
-		<label for="add">Add Object</label>
-		<input type="radio" id="move" name="mode" value="move"/>
-		<label for="move">Move Object</label>
-		<input type="radio" id="delete" name="mode" value="delete"/>
-		<label for="delete">Delete Object</label>			
-		<br>
+        <div class="action">
+            <input type="radio" id='add' name='mode' value='add' checked/>
+            <label for="add">Add Object</label>
+        </div>
+        <div class="action">
+            <input type="radio" id="move" name="mode" value="move"/>
+            <label for="move">Move Object</label>        
+        </div>
+        <div class="action">
+            <input type="radio" id="delete" name="mode" value="delete"/>
+            <label for="delete">Delete Object</label>        
+        </div>
+        <div class="color">
 		<select id="color">
-        <!--<option value="stone">stone</option>-->
-        <option value="red">red</option>
-        <option value="orange">orange</option>
-        <option value="yellow">yellow</option>
-        <option value="green">green</option>
-        <option value="blue">blue</option>
-        <option value="purple">purple</option>
-        <option value="white">white</option>
-        <option value="black">black</option>
-        <option value="chocolate">brown</option>
-        <option value="gray">gray</option>
-    </select>
-    <select id="geo">
-        <option value="square">square</option>
-        <option value="rectangle">rectangle</option>
-        <option value="quarterBlock">quarter-block</option>
-        <option value="cylinder">cylinder</option>
-        <option value="pyramid">pyramid</option>
-        <option value="half pyramid">half pyramid</option>
-        <option value="sphere">sphere</option>
-    </select>
-	<br>
-    <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
-    <label for="mouseControls">Mouse</label>
-    <input type="radio" id="keyboardControls" name="control" value="keyboard"/>
-    <label for="keyboardControls">Keyboard</label>
+            <!--<option value="stone">stone</option>-->
+            <option value="red">red</option>
+            <option value="orange">orange</option>
+            <option value="yellow">yellow</option>
+            <option value="green">green</option>
+            <option value="blue">blue</option>
+            <option value="purple">purple</option>
+            <option value="white">white</option>
+            <option value="black">black</option>
+            <option value="chocolate">brown</option>
+            <option value="gray">gray</option>
+        </select>        
         </div>
-        <div >
-            <button class="options" id="create">Save</button>
-            <br>
-            <button class="options" id="create">Clear</button>
+
+        <div class="shape">
+        <select id="geo">
+            <option value="square">square</option>
+            <option value="rectangle">rectangle</option>
+            <option value="quarterBlock">quarter-block</option>
+            <option value="cylinder">cylinder</option>
+            <option value="pyramid">pyramid</option>
+            <option value="half pyramid">half pyramid</option>
+            <option value="sphere">sphere</option>
+        </select>
         </div>
+        <div class="control">
+            <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
+            <label for="mouseControls">Mouse</label>
+        </div>
+        <div class="contorl">
+            <input type="radio" id="keyboardControls" name="control" value="keyboard" />
+            <label for="keyboardControls">Keyboard</label>
+        </div>
+        <button class="options" id="create">Save</button>
+        <br>
+        <button class="options" id="create">Clear</button>
+        </div>
+
+
     </div>
     <!-- display build here -->
     <div id="buildtable">

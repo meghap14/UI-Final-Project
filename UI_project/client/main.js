@@ -127,6 +127,7 @@ if (Meteor.isClient) {
 $(document).ready(function () {
 
 
+    container = document.getElementById("canvas");
 
     dropColor = "red";
     dropGeo = "square";
@@ -141,7 +142,7 @@ $(document).ready(function () {
     renderer.shadowMap.enabled = true;
 
     renderer.setClearColor(0xddeeff);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(container.innerWidth, container.innerHeight);
 
 
     //THIS IS WHAT WE LOAD AND STORE
