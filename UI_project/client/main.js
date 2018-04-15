@@ -54,7 +54,7 @@ if (Meteor.isClient) {
 			}
 			else {
 				//adds username and password to the database
-				Accounts.insert({username : instance.username.get(), password : instance.password.get() });
+				Meteor.call('insert_account', instance.username.get(), instance.password.get());
 				
 				//sets global value for logged in user
 				LOGGED_IN_USER.set(instance.username.get());
