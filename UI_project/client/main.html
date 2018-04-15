@@ -25,12 +25,7 @@
     </div>
     </header>
     <div class="loggedin">
-        <!-- {{ #if show_login }} -->
-            <!-- <h2 style="text-align: center">Log in above to get started!</h2> -->
-        <!-- {{ else }} -->
              {{> interface}}
-        <!-- {{ /if }} -->
-
     </div>
 
 </template>
@@ -93,20 +88,22 @@
 
 <!-- login/create account box -->
 <template name="login">
-<div class="login">
-    <label for="username">Username:</label>
-    <input type="text" id="username"><br>
-</div>
+    <div id="form-wrapper">
+    <form>
+        <label for="username">Username:</label>
+        <input type="text" id="username">
+        <br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password">
+        <br>
+        <br>
+        
+        <button id="create">Create Account</button>
+        <button id="login">Log In</button>
+    </form>
+    </div>
 
-<div class="login">
-    <label for="password">Password:</label>
-    <input type="password" id="password"><br><br>
-</div>
-
-<div class="login">
-    <button id="create">Create Account</button>
-    <button id="login">Log In</button>
-</div>
 </template>
 
 <!-- if logged in -->
