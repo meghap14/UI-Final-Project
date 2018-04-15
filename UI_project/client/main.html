@@ -7,17 +7,21 @@
 </body>
 
 <template name="container">
+    {{ #if show_login }}
+        {{> login}}
+    {{ else }}
+        {{> main_page}}
+    {{ /if }} 
+</template>
+
+<template name="main_page">
     <header class="page-header bottomborders headerrow">
     <div class="headercolumn">
     <h1>Lego Builder!</h1>
     
     </div>
     <div class="headercolumn">
-    {{ #if show_login }}
-        {{> login}}
-    {{ else }}
-        {{> welcome}}
-    {{ /if }}   
+    {{> welcome}}  
     </div>
     </header>
     <div class="loggedin">
