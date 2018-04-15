@@ -320,7 +320,8 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
 function onDocumentMouseDown(event) {
                 //event.preventDefault();
                 if (curControl == "mouse") {
-                    mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+                    var offset = $(this).offset();
+                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
                     var intersects = raycaster.intersectObjects(objects);
                     console.log(intersects);
