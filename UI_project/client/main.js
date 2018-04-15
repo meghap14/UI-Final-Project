@@ -14,6 +14,7 @@ if (Meteor.isClient) {
 	
 	//boolean for whether to show the login screen.  We might change the structure of this when we add more views
 	SHOW_LOGIN = new ReactiveVar(true);
+	console.log(SHOW_LOGIN);
 
 	Template.container.onCreated(function() {
 		//creates client side verson of database
@@ -31,6 +32,7 @@ if (Meteor.isClient) {
 		//holds value of what users type into username textbox
 		this.username = new ReactiveVar("");
 		this.password = new ReactiveVar("");
+		console.log(SHOW_LOGIN);
 	});
 
 	Template.login.events({
@@ -87,7 +89,12 @@ if (Meteor.isClient) {
 				//switches to welcome screen
 				SHOW_LOGIN.set(false);
 			}
+			console.log(SHOW_LOGIN);
 		}
+	});
+
+	Template.welcome.onRendered( function() {
+		console.log(SHOW_LOGIN);
 	});
 
 	Template.welcome.helpers({
@@ -315,7 +322,7 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
 
 	
 function onDocumentMouseDown(event) {
-                //event.preventDefault();
+                event.preventDefault();
                 if (curControl == "mouse") {
                     mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
