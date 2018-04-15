@@ -7,11 +7,11 @@
 </body>
 
 <template name="container">
-    <!-- {{ #if show_login }}
+    {{ #if show_login }}
         {{> login}}
-    {{ else }} -->
+    {{ else }}
         {{> main_page}}
-    <!-- {{ /if }}  -->
+    {{ /if }} 
 </template>
 
 <template name="main_page">
@@ -61,6 +61,7 @@
         <option value="square">square</option>
         <option value="rectangle">rectangle</option>
         <option value="quarterBlock">quarter-block</option>
+		<option value="wall">wall</option>
         <option value="cylinder">cylinder</option>
         <option value="pyramid">pyramid</option>
         <option value="half pyramid">half pyramid</option>
@@ -71,6 +72,8 @@
     <label for="mouseControls">Mouse</label>
     <input type="radio" id="keyboardControls" name="control" value="keyboard"/>
     <label for="keyboardControls">Keyboard</label>
+	<br>
+	<button id="rotate">Rotate</button>
         </div>
         <div >
             <button class="options" id="create">Save</button>
@@ -78,6 +81,7 @@
             <button class="options" id="create">Clear</button>
         </div>
     </div>
+	
     <!-- display build here -->
     <div id="buildtable">
         {{> table}}

@@ -119,12 +119,34 @@ if (Meteor.isClient) {
 
 }
 
+
+
+
+
+// Template.hello.onCreated(function helloOnCreated() {
+//   // counter starts at 0
+//   this.counter = new ReactiveVar(0);
+// });
+
+// Template.hello.helpers({
+//   counter() {
+//     return Template.instance().counter.get();
+//   },
+// });
+
+// Template.hello.events({
+//   'click button'(event, instance) {
+//     // increment the counter when button is clicked
+//     instance.counter.set(instance.counter.get() + 1);
+//   },
+// });
+
 //////////////////////
 //THREE JS variables//
 //////////////////////
 var dropColor = "red";
 var dropGeo = "square";
-var curControl = "mouse";
+var curControl = "mouse";  //values: "mouse" "keyboard"
 var mode = "add"; //checks insertion mode.  Values are "add" "move" "delete"
 var isMoving = false;  //checks if, while in 'move' mode you are moving or selecting an object
 var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
@@ -166,9 +188,10 @@ var unitBlock = new THREE.BoxGeometry(10, 10, 10);
 var square = new THREE.BoxGeometry(20, 20, 20);
 var rectangle = new THREE.BoxGeometry(20, 20, 40);
 var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
+var wall = new THREE.BoxGeometry(5, 20, 20);
 var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
 var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
-var sphere = new THREE.SphereGeometry(5, 40, 40);
+var sphere = new THREE.SphereGeometry(5, 10, 10);
 
 var halfPyramid = new THREE.Geometry();
 halfPyramid.vertices = [
@@ -225,7 +248,7 @@ Template.interface.onRendered(function () {
 	$("#canvas").append(renderer.domElement);
 	
     //javascript event listeners
-    $('#canvas').on('mousemove', onDocumentMouseMove);
+    $('#canvas').mousemove(onDocumentMouseMove);
     $('#canvas').click(onDocumentMouseDown);
     window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('keyup', enterKey, false);
@@ -263,6 +286,9 @@ Template.interface.events({
 	'click [name="control"]': function(event, template) {
 		curControl = $(event.currentTarget).val();
 	},
+	'click #rotate' : function(event, template){
+		rotateMesh();
+	},
 	
 	"change #color": function(event, template){
 		dropColor = $(event.currentTarget).val();
@@ -271,6 +297,7 @@ Template.interface.events({
 	"change #geo": function(event, template){
 		dropGeo = $(event.currentTarget).val();
 		SwitchGeo(dropGeo);
+		render();
 	}
 });
 
@@ -278,7 +305,8 @@ Template.interface.events({
 function onDocumentMouseMove(event) {  //taken from threejs.org
                 if (curControl == "mouse") {
                     //event.preventDefault();
-                    mouse.set((event.clientX / $("#canvas").width()) * 2 - 1, - (event.clientY / $("#canvas").height()) * 2 + 1);
+					var offset = $(this).offset();
+                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     var intersects = raycaster.intersectObjects(objects);
                     //console.log(intersects);
@@ -287,6 +315,7 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
                         rollOverMesh.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
                         if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
+						if (rollOverGeo == wall) rollOverMesh.translateX(-2);
                     }
                     render();
                 }
@@ -296,7 +325,8 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
 function onDocumentMouseDown(event) {
                 //event.preventDefault();
                 if (curControl == "mouse") {
-                    mouse.set((event.clientX / $("#canvas").width()) * 2 - 1, - (event.clientY / $("#canvas").height()) * 2 + 1);
+                    var offset = $(this).offset();
+                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
                     var intersects = raycaster.intersectObjects(objects);
                     console.log(intersects);
@@ -318,14 +348,14 @@ function onDocumentMouseDown(event) {
 								}
 							}
 							else{
-								addBlock(intersect.object.position);
+								addBlock(intersect);
 								isMoving = false;
 								rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.5, transparent: true });
 								SwitchGeo("unitBlock");
 							}
 						}
                         else {  //mode == add
-                            addBlock(intersect.object.position);
+                            addBlock(intersect);
                         }
                     }
                     render();
@@ -497,7 +527,11 @@ function SwitchGeo(val) {
 					rollOverGeo = quarterBlock;
                     changeRollOverMesh(val);
                 }
-
+				else if (val == "wall") {
+					globe_geometry = wall;
+					rollOverGeo = wall;
+					changeRollOverMesh(val);
+				}
                 else if (val == "pyramid") {
                     globe_geometry = pyramid;
 					rollOverGeo = pyramid;
@@ -533,11 +567,12 @@ function changeRollOverMesh(string) {
     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
     rollOverMesh.name = string + "Mesh";
     scene.add(rollOverMesh);
-
     //put rollOverMesh at old spot
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
     rollOverMesh.position.setZ(position.getComponent(2));
+	if (dropGeo == "wall") {rollOverMesh.translateX(-2);}
+
 }
 
 function setRollOverFromBlock(block){
@@ -557,11 +592,7 @@ function setRollOverFromBlock(block){
 }
 
 function addBlock(position){
-
 	cur_geo = globe_geometry;
-    /*if (dropColor.value == "stone") {
-        cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })
-    } <-- restore comment*/
 	var cur_color;
 	if (!isMoving){
        cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
@@ -570,21 +601,40 @@ function addBlock(position){
     block = new THREE.Mesh(cur_geo, cur_color);
     var name = rollOverMesh.name.slice(0, 6);
     block.name = name;
-    console.log(block.name);
     block.castShadow = true;
     block.receiveShadow = true;
 	
 	//set position of block from position vector
-	block.position.setX(position.getComponent(0));
-    block.position.setY(position.getComponent(1));
-    block.position.setZ(position.getComponent(2));
-    //block.position.copy(intersect.point).add(intersect.face.normal);
-	
+	if(curControl == "keyboard"){
+		block.position.setX(position.getComponent(0));
+		block.position.setY(position.getComponent(1));
+		block.position.setZ(position.getComponent(2));
+		block.translateX(-10);
+		block.translateY(-10);
+		block.translateZ(-10);
+	}
+	else if (curControl == "mouse"){
+		block.position.copy(position.point).add(position.face.normal);
+	}
 	//Make block motion discrete, not continuous
     block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
     scene.add(block);
+	block.rotation.x = rollOverMesh.rotation.x;
+	block.rotation.y = rollOverMesh.rotation.y;
+	block.rotation.z = rollOverMesh.rotation.z;
+	if (dropGeo == "wall") {
+		if (curControl == "mouse") block.translateX(-2);
+		else block.translateX(2.5);
+		console.log("block translated")
+		}
+	//console.log(block);
     objects.push(block);
 }	
+
+function rotateMesh(){
+	rollOverMesh.rotateY(Math.PI / 2);
+	render();
+}
 
 function onWindowResize() {
 				container = document.getElementById("canvas");
