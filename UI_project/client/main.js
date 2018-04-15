@@ -390,7 +390,9 @@ function arrowKeys(event) {
 
                     }
 					else if (event.keyCode == 90){
+						if (rollOverMesh.position.y > 0){
 						rollOverMesh.translateY(-5);
+						}
 					}
 					else if (event.keyCode == 88){
 						rollOverMesh.translateY(5);
