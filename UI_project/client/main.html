@@ -36,19 +36,25 @@
 <div class="row">
 
     <div id="menu">
-        <div id="blocks">
-        <div class="action">
-            <input type="radio" id='add' name='mode' value='add' checked/>
-            <label for="add">Add Object</label>
-        </div>
-        <div class="action">
-            <input type="radio" id="move" name="mode" value="move"/>
-            <label for="move">Move Object</label>        
-        </div>
-        <div class="action">
-            <input type="radio" id="delete" name="mode" value="delete"/>
-            <label for="delete">Delete Object</label>        
-        </div>
+                <label>Action:</label>
+                <br/>
+            <ul class="actions">
+                <li>
+                    <input type="radio" id='add' name='mode' value='add' checked/>
+                    <label for="add">Add</label><br/>                    
+                </li>
+                <li>
+                    <input type="radio" id="move" name="mode" value="move"/>
+                    <label for="move">Move</label><br/>
+                </li>
+                <li>
+                    <input type="radio" id="delete" name="mode" value="delete"/>
+                    <label for="delete">Delete</label><br/>
+                </li>
+            </ul>
+
+
+        
         <div class="color">
 		<select id="color">
             <!--<option value="stone">stone</option>-->
@@ -76,21 +82,22 @@
             <option value="sphere">sphere</option>
         </select>
         </div>
-        <div class="control">
-            <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
-            <label for="mouseControls">Mouse</label>
-        </div>
-        <div class="contorl">
-            <input type="radio" id="keyboardControls" name="control" value="keyboard" />
-            <label for="keyboardControls">Keyboard</label>
-        </div>
+        <ul class="actions">
+            <li>
+                <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
+                <label for="mouseControls">Mouse</label><br/>
+            </li>
+            <li>
+                <input type="radio" id="keyboardControls" name="control" value="keyboard" />
+                <label for="keyboardControls">Keyboard</label><br/>
+            </li>
+        </ul>
         <button class="options" id="create">Save</button>
         <br>
         <button class="options" id="create">Clear</button>
-        </div>
-
-
     </div>
+
+
     <!-- display build here -->
     <div id="buildtable">
         {{> table}}
