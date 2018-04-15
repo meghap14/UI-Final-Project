@@ -341,11 +341,11 @@ function onDocumentMouseDown(event) {
 							else{
 								addBlock(intersect);
 								isMoving = false;
-								rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true });
+								rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.5, transparent: true });
 								SwitchGeo("unitBlock");
 							}
 						}
-                        else {
+                        else {  //mode == add
                             addBlock(intersect);
                         }
                     }
