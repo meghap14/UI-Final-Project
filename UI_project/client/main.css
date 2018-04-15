@@ -1,7 +1,7 @@
 /* CSS declarations go here */
 
     *{
-        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-family: "Impact","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
 
     body {
@@ -41,7 +41,7 @@
         padding: 0 .5em .7em;
         border-bottom: solid 1px #E5E5E5;
         margin-bottom: 1em;
-        min-width: 700px;
+        min-width: 1000px;
     }
 
     .headerrow {
@@ -67,18 +67,19 @@
 
     #buildtable{
         background: lightgreen;
-        flex: 70%;
-        min-width: 450px;
+        flex: 80%;
+        min-width: 800px;
         text-align: center;
         height: 100%;
     }
     
     #menu{
-        background: lavender;
-        flex: 30%;
-        min-width: 250px;
+        background: #ddeeff;
+        flex: 20%;
+        min-width: 200px;
         text-align: center;
         height: 100%;
+        border-right: solid #e3eaf2 1px;
 
     }
 
@@ -87,8 +88,50 @@
         width: 50%;
     }
 
-    #blocks{
-        height: 425px;
-        background: indianred;
-        
+
+    
+    .color, .shape{
+        margin: 8px 8px;
+    }
+
+
+
+    .actions{
+        margin: 8px 0px;
+        height: auto;
+        list-style-type:none;
+        padding:0;
+    }
+
+    .actions li {
+        float:left;
+        margin:0 5px 0 0;
+        width:100%;
+        height:40px;
+        position:relative;
+    }
+
+    .actions label {
+        display:block;
+        position:absolute;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        padding:5px;
+        border:1px solid #CCC; 
+        cursor:pointer;
+
+    }
+
+    .actions input[type="radio"] {
+        opacity:0.011;
+        z-index:100;
+    }
+
+    .actions input[type="radio"]:checked + label {
+        background:#e3eaf2;
+    }
+    .actions label:hover {
+        background:#DDD;
     }
