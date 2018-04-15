@@ -7,6 +7,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.44",
     "meteor-node-stubs": "^0.3.2",
+    "simpl-schema": "^1.5.0",
     "three": "^0.91.0",
     "three-orbit-controls": "^82.1.0",
     "three.js": "^0.77.1"

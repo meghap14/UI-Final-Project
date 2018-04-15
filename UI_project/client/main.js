@@ -119,28 +119,6 @@ if (Meteor.isClient) {
 
 }
 
-
-
-
-
-// Template.hello.onCreated(function helloOnCreated() {
-//   // counter starts at 0
-//   this.counter = new ReactiveVar(0);
-// });
-
-// Template.hello.helpers({
-//   counter() {
-//     return Template.instance().counter.get();
-//   },
-// });
-
-// Template.hello.events({
-//   'click button'(event, instance) {
-//     // increment the counter when button is clicked
-//     instance.counter.set(instance.counter.get() + 1);
-//   },
-// });
-
 //////////////////////
 //THREE JS variables//
 //////////////////////
@@ -555,6 +533,7 @@ function changeRollOverMesh(string) {
     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
     rollOverMesh.name = string + "Mesh";
     scene.add(rollOverMesh);
+
     //put rollOverMesh at old spot
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
@@ -578,6 +557,7 @@ function setRollOverFromBlock(block){
 }
 
 function addBlock(position){
+
 	cur_geo = globe_geometry;
     /*if (dropColor.value == "stone") {
         cur_color = new THREE.MeshLambertMaterial({ map: stone_texture })

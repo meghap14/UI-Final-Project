@@ -3,31 +3,29 @@
 </head>
 
 <body>
-    {{>table}}
     {{> container}}
 </body>
 
 <template name="container">
+    <!-- {{ #if show_login }}
+        {{> login}}
+    {{ else }} -->
+        {{> main_page}}
+    <!-- {{ /if }}  -->
+</template>
+
+<template name="main_page">
     <header class="page-header bottomborders headerrow">
     <div class="headercolumn">
     <h1>Lego Builder!</h1>
     
     </div>
     <div class="headercolumn">
-    {{ #if show_login }}
-        {{> login}}
-    {{ else }}
-        {{> welcome}}
-    {{ /if }}   
+    {{> welcome}}  
     </div>
     </header>
     <div class="loggedin">
-        <!-- {{ #if show_login }} -->
-            <!-- <h2 style="text-align: center">Log in above to get started!</h2> -->
-        <!-- {{ else }} -->
              {{> interface}}
-        <!-- {{ /if }} -->
-
     </div>
 
 </template>
@@ -36,8 +34,43 @@
 <template name="interface">
 <!-- display blocks here and save build -->
 <div class="row">
+
     <div id="menu">
         <div id="blocks">
+		<input type="radio" id='add' name='mode' value='add' checked/>
+		<label for="add">Add Object</label>
+		<input type="radio" id="move" name="mode" value="move"/>
+		<label for="move">Move Object</label>
+		<input type="radio" id="delete" name="mode" value="delete"/>
+		<label for="delete">Delete Object</label>			
+		<br>
+		<select id="color">
+        <!--<option value="stone">stone</option>-->
+        <option value="red">red</option>
+        <option value="orange">orange</option>
+        <option value="yellow">yellow</option>
+        <option value="green">green</option>
+        <option value="blue">blue</option>
+        <option value="purple">purple</option>
+        <option value="white">white</option>
+        <option value="black">black</option>
+        <option value="chocolate">brown</option>
+        <option value="gray">gray</option>
+    </select>
+    <select id="geo">
+        <option value="square">square</option>
+        <option value="rectangle">rectangle</option>
+        <option value="quarterBlock">quarter-block</option>
+        <option value="cylinder">cylinder</option>
+        <option value="pyramid">pyramid</option>
+        <option value="half pyramid">half pyramid</option>
+        <option value="sphere">sphere</option>
+    </select>
+	<br>
+    <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
+    <label for="mouseControls">Mouse</label>
+    <input type="radio" id="keyboardControls" name="control" value="keyboard"/>
+    <label for="keyboardControls">Keyboard</label>
         </div>
         <div >
             <button class="options" id="create">Save</button>
@@ -55,20 +88,20 @@
 
 <!-- login/create account box -->
 <template name="login">
-<div class="login">
-    <label for="username">Username:</label>
-    <input type="text" id="username"><br>
-</div>
+    <div id="form-wrapper">
+        <label for="username">Username:</label>
+        <input type="text" id="username">
+        <br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password">
+        <br>
+        <br>
+        
+        <button id="create">Create Account</button>
+        <button id="login">Log In</button>
+    </div>
 
-<div class="login">
-    <label for="password">Password:</label>
-    <input type="password" id="password"><br><br>
-</div>
-
-<div class="login">
-    <button id="create">Create Account</button>
-    <button id="login">Log In</button>
-</div>
 </template>
 
 <!-- if logged in -->
@@ -82,7 +115,6 @@
 
 
 <template name="table">
-    <div id="canvashere">
-<!-- <canvas  width="606" height="723" style="width: 606px; height: 723px; border:black solid 5px;"></canvas> -->
-    </div>
+        <div  id="canvas" style="width:100%; height:100%; min-width: 400px">
+		</div>
 </template>
