@@ -122,11 +122,11 @@ if (Meteor.isClient) {
 
 
 
-
 // Template.hello.onCreated(function helloOnCreated() {
 //   // counter starts at 0
 //   this.counter = new ReactiveVar(0);
 // });
+
 
 // Template.hello.helpers({
 //   counter() {
@@ -188,9 +188,13 @@ var unitBlock = new THREE.BoxGeometry(10, 10, 10);
 var square = new THREE.BoxGeometry(20, 20, 20);
 var rectangle = new THREE.BoxGeometry(20, 20, 40);
 var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
+var wall = new THREE.BoxGeometry(5, 20, 20);
 var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
 var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
 var sphere = new THREE.SphereGeometry(5, 10, 10);
+var tile = new THREE.PlaneGeometry(10,10);
+tile.rotateX(-Math.PI / 2);
+
 
 var halfPyramid = new THREE.Geometry();
 halfPyramid.vertices = [
@@ -247,8 +251,9 @@ Template.interface.onRendered(function () {
 	$("#canvas").append(renderer.domElement);
 	
     //javascript event listeners
-    $('canvas').mousemove(onDocumentMouseMove);
-    $('canvas').click(onDocumentMouseDown);
+    $('#canvas').mousemove(onDocumentMouseMove);
+    $('#canvas').click(onDocumentMouseDown);
+
     window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('keyup', enterKey, false);
     window.addEventListener('resize', onWindowResize, false);
@@ -285,6 +290,9 @@ Template.interface.events({
 	'click [name="control"]': function(event, template) {
 		curControl = $(event.currentTarget).val();
 	},
+	'click #rotate' : function(event, template){
+		rotateMesh();
+	},
 	
 	"change #color": function(event, template){
 		dropColor = $(event.currentTarget).val();
@@ -311,6 +319,8 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
                         rollOverMesh.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
                         if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
+						if (dropGeo == "tile") rollOverMesh.translateY(-9);
+						if (rollOverGeo == wall) rollOverMesh.translateX(-2);
                     }
                     render();
                 }
@@ -363,22 +373,28 @@ function arrowKeys(event) {
                     event.preventDefault();
                     event.stopPropagation();
                     if (event.keyCode == 37) {  //left arrow
-                        rollOverMesh.translateX(-5);
-						keyCollision();
+                        rollOverMesh.translateX(-1);
+						//keyCollision();
                     }
                     else if (event.keyCode == 38) { //up arrow
-                        rollOverMesh.translateZ(-5);
-						keyCollision();
+                        rollOverMesh.translateZ(-1);
+						//keyCollision();
                     }
                     else if (event.keyCode == 39) { //right arrow
-                        rollOverMesh.translateX(5);
-						keyCollision();
+                        rollOverMesh.translateX(1);
+						//keyCollision();
                     }
                     else if (event.keyCode == 40) { //down arrow
-                        rollOverMesh.translateZ(5);
-						keyCollision();
+                        rollOverMesh.translateZ(1);
+						//keyCollision();
 
                     }
+					else if (event.keyCode == 90){
+						rollOverMesh.translateY(-5);
+					}
+					else if (event.keyCode == 88){
+						rollOverMesh.translateY(5);
+					}
                     render();
                 }
     }
@@ -413,7 +429,9 @@ function enterKey(event) {
                                 collisRaycaster.set(rollOverMesh.position, directionVector.clone().normalize());
                                 var collisionResults = collisRaycaster.intersectObjects(objects);
                                 console.log("collision size:" + collisionResults.length);
-                                if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && collisionResults[0].object != plane) {
+                                if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() 
+									&& collisionResults[0].object != plane && collisionResults[0].object.geometry != tile) {
+
                                     setRollOverFromBlock(collisionResults[0].object);
 									scene.remove(collisionResults[0].object);
                                     console.log(collisionResults[0].object);
@@ -522,7 +540,11 @@ function SwitchGeo(val) {
 					rollOverGeo = quarterBlock;
                     changeRollOverMesh(val);
                 }
-
+				else if (val == "wall") {
+					globe_geometry = wall;
+					rollOverGeo = wall;
+					changeRollOverMesh(val);
+				}
                 else if (val == "pyramid") {
                     globe_geometry = pyramid;
 					rollOverGeo = pyramid;
@@ -543,6 +565,11 @@ function SwitchGeo(val) {
 					rollOverGeo = sphere;
 					changeRollOverMesh(val);
                 }
+				else if (val == "tile") {
+					globe_geometry = tile;
+					rollOverGeo = tile;
+					changeRollOverMesh(val);
+				}
 	}
 	
     else if (!isMoving) {
@@ -561,7 +588,9 @@ function changeRollOverMesh(string) {
     //put rollOverMesh at old spot
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
-    rollOverMesh.position.setZ(position.getComponent(2));
+    if (dropGeo != "tile")rollOverMesh.position.setZ(position.getComponent(2));
+	if (dropGeo == "wall") {rollOverMesh.translateX(-2);}
+	if (dropGeo == "tile") rollOverMesh.translateY(-9.5);
 }
 
 function setRollOverFromBlock(block){
@@ -590,7 +619,6 @@ function addBlock(position){
     block = new THREE.Mesh(cur_geo, cur_color);
     var name = rollOverMesh.name.slice(0, 6);
     block.name = name;
-    console.log(block.name);
     block.castShadow = true;
     block.receiveShadow = true;
 	
@@ -598,7 +626,7 @@ function addBlock(position){
 	if(curControl == "keyboard"){
 		block.position.setX(position.getComponent(0));
 		block.position.setY(position.getComponent(1));
-		block.position.setZ(position.getComponent(2));
+		if (dropGeo != "tile") block.position.setZ(position.getComponent(2));
 		block.translateX(-10);
 		block.translateY(-10);
 		block.translateZ(-10);
@@ -609,8 +637,25 @@ function addBlock(position){
 	//Make block motion discrete, not continuous
     block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
     scene.add(block);
+	block.rotation.x = rollOverMesh.rotation.x;
+	block.rotation.y = rollOverMesh.rotation.y;
+	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
+	if (dropGeo == "wall") {
+		if (curControl == "mouse") block.translateX(-2);
+		else block.translateX(2.5);
+		console.log("block translated")
+	}
+	if (dropGeo == "tile") block.translateY(-9);
+
+	//console.log(block);
     objects.push(block);
 }	
+
+function rotateMesh(){
+	//if (dropGeo == "tile") rollOverMesh.rotateX(Math.PI / 2);
+	if (dropGeo != "tile") rollOverMesh.rotateY(Math.PI / 2);
+	render();
+}
 
 function onWindowResize() {
 				container = document.getElementById("canvas");

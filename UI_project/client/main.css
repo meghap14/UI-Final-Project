@@ -1,7 +1,8 @@
 /* CSS declarations go here */
 
     *{
-        font-family: "Imapct","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+        font-family: "Impact","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
 
     body {
@@ -135,4 +136,5 @@
     .actions label:hover {
         background:#DDD;
     }
+
 
