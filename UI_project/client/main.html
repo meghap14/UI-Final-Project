@@ -36,53 +36,70 @@
 <div class="row">
 
     <div id="menu">
-        <div id="blocks">
-		<input type="radio" id='add' name='mode' value='add' checked/>
-		<label for="add">Add Object</label>
-		<input type="radio" id="move" name="mode" value="move"/>
-		<label for="move">Move Object</label>
-		<input type="radio" id="delete" name="mode" value="delete"/>
-		<label for="delete">Delete Object</label>			
-		<br>
+                <label>Action:</label>
+                <br/>
+            <ul class="actions">
+                <li>
+                    <input type="radio" id='add' name='mode' value='add' checked/>
+                    <label for="add">Add</label><br/>                    
+                </li>
+                <li>
+                    <input type="radio" id="move" name="mode" value="move"/>
+                    <label for="move">Move</label><br/>
+                </li>
+                <li>
+                    <input type="radio" id="delete" name="mode" value="delete"/>
+                    <label for="delete">Delete</label><br/>
+                </li>
+            </ul>
+
+
+        
+        <div class="color">
 		<select id="color">
-        <!--<option value="stone">stone</option>-->
-        <option value="red">red</option>
-        <option value="orange">orange</option>
-        <option value="yellow">yellow</option>
-        <option value="green">green</option>
-        <option value="blue">blue</option>
-        <option value="purple">purple</option>
-        <option value="white">white</option>
-        <option value="black">black</option>
-        <option value="chocolate">brown</option>
-        <option value="gray">gray</option>
-    </select>
-    <select id="geo">
-        <option value="square">square</option>
-        <option value="rectangle">rectangle</option>
-        <option value="quarterBlock">quarter-block</option>
-		<option value="wall">wall</option>
-        <option value="cylinder">cylinder</option>
-        <option value="pyramid">pyramid</option>
-        <option value="half pyramid">half pyramid</option>
-        <option value="sphere">sphere</option>
-		<option value="tile">tile</option>
-    </select>
-	<br>
-    <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
-    <label for="mouseControls">Mouse</label>
-    <input type="radio" id="keyboardControls" name="control" value="keyboard"/>
-    <label for="keyboardControls">Keyboard</label>
-	<br>
-	<button id="rotate">Rotate</button>
+            <!--<option value="stone">stone</option>-->
+            <option value="red">red</option>
+            <option value="orange">orange</option>
+            <option value="yellow">yellow</option>
+            <option value="green">green</option>
+            <option value="blue">blue</option>
+            <option value="purple">purple</option>
+            <option value="white">white</option>
+            <option value="black">black</option>
+            <option value="chocolate">brown</option>
+            <option value="gray">gray</option>
+        </select>
         </div>
-        <div >
-            <button class="options" id="create">Save</button>
-            <br>
-            <button class="options" id="create">Clear</button>
+
+        <div class="shape">
+        <select id="geo">
+            <option value="square">square</option>
+            <option value="rectangle">rectangle</option>
+            <option value="quarterBlock">quarter-block</option>
+            <option value="wall">wall</option>
+            <option value="cylinder">cylinder</option>
+            <option value="pyramid">pyramid</option>
+            <option value="half pyramid">half pyramid</option>
+            <option value="sphere">sphere</option>
+            <option value="tile">tile</option>
+        </select>
         </div>
+        <ul class="actions">
+            <li>
+                <input type="radio" id="mouseControls" name="control" value="mouse" checked/>
+                <label for="mouseControls">Mouse</label><br/>
+            </li>
+            <li>
+                <input type="radio" id="keyboardControls" name="control" value="keyboard" />
+                <label for="keyboardControls">Keyboard</label><br/>
+            </li>
+        </ul>
+        <button id="rotate">Rotate</button>
+        <button class="options" id="create">Save</button>
+        <br>
+        <button class="options" id="create">Clear</button>
     </div>
-	
+
     <!-- display build here -->
     <div id="buildtable">
         {{> table}}
