@@ -145,11 +145,11 @@ $(document).ready(function () {
 
 
     //THIS IS WHAT WE LOAD AND STORE
-    var objects = []; //array of all objects on map
+    objects = []; //array of all objects on map
 
     //cube impl
-    var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
-    var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
+    globe_geometry = new THREE.BoxGeometry(20, 20, 20);
+    globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
     //var stone_texture = new THREE.TextureLoader().load('add later');
 
     camera.position.set(100, 100, 200);
@@ -168,15 +168,15 @@ $(document).ready(function () {
     scene.add(rollOverMesh);
 
     scene.add(grid);
-    var unitBlock = new THREE.BoxGeometry(10, 10, 10);
-    var square = new THREE.BoxGeometry(20, 20, 20);
-    var rectangle = new THREE.BoxGeometry(20, 20, 40);
-    var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
-    var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
-    var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
-    var sphere = new THREE.SphereGeometry(5, 40, 40);
+    unitBlock = new THREE.BoxGeometry(10, 10, 10);
+    square = new THREE.BoxGeometry(20, 20, 20);
+    rectangle = new THREE.BoxGeometry(20, 20, 40);
+    quarterBlock = new THREE.BoxGeometry(10, 20, 10);
+    pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
+    cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
+    sphere = new THREE.SphereGeometry(5, 40, 40);
 
-    var halfPyramid = new THREE.Geometry();
+    halfPyramid = new THREE.Geometry();
     halfPyramid.vertices = [
         new THREE.Vector3(0, 0, 0),    //0 
         new THREE.Vector3(20, 0, 0),   //1
@@ -185,7 +185,7 @@ $(document).ready(function () {
         new THREE.Vector3(20, 20, 0),  //4 
         new THREE.Vector3(20, 20, 20)  //5
     ];
-    var face = new THREE.Face3(0, 1, 2);
+    face = new THREE.Face3(0, 1, 2);
     halfPyramid.faces.push(face);
     face = new THREE.Face3(0, 2, 3);
     halfPyramid.faces.push(face);
@@ -202,7 +202,7 @@ $(document).ready(function () {
     face = new THREE.Face3(2, 4, 5);
     halfPyramid.faces.push(face);
 
-    var geometry = new THREE.PlaneBufferGeometry(200, 200);
+    geometry = new THREE.PlaneBufferGeometry(200, 200);
     geometry.rotateX(- Math.PI / 2);
     plane = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ visible: true }));
     plane.receiveShadow = true;
@@ -210,10 +210,10 @@ $(document).ready(function () {
     scene.add(plane);
     objects.push(plane);
 
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
 
-    var light = new THREE.SpotLight(0xffffff, 1.6);
+    light = new THREE.SpotLight(0xffffff, 1.6);
     light.position.copy(camera.position);
     light.shadowCameraVisible = true;
     scene.add(light);
