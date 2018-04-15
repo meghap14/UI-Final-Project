@@ -120,7 +120,6 @@ if (Meteor.isClient) {
 }
 
 
-    container = document.getElementById("canvas");
 
 
 
@@ -248,8 +247,8 @@ Template.interface.onRendered(function () {
 	$("#canvas").append(renderer.domElement);
 	
     //javascript event listeners
-    window.addEventListener('mousemove', onDocumentMouseMove, true);
-    window.addEventListener('mouseup', onDocumentMouseDown, true);
+    $('canvas').mousemove(onDocumentMouseMove);
+    $('canvas').click(onDocumentMouseDown);
     window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('keyup', enterKey, false);
     window.addEventListener('resize', onWindowResize, false);
@@ -302,7 +301,8 @@ Template.interface.events({
 function onDocumentMouseMove(event) {  //taken from threejs.org
                 if (curControl == "mouse") {
                     //event.preventDefault();
-                    mouse.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+					var offset = $(this).offset();
+                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     var intersects = raycaster.intersectObjects(objects);
                     //console.log(intersects);
