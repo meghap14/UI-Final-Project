@@ -161,14 +161,21 @@ if (Meteor.isClient) {
 						console.log("Saved project:");
 						console.log(saved_project.project);
 						//objects = saved_project.project;
+						for (var i = 0; i < saved_project.project.length; i++) {
+							scene.add(saved_project.project[i]);
+						}
+
+						SHOW_LANDING.set(false);
 					}
 				}
 				else {
 					if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : instance.project_name.get() }).count()) {
 						alert("Project already exists");
 					}
+					else {
+						SHOW_LANDING.set(false);
+					}
 				}
-				SHOW_LANDING.set(false);
 			}
 		}
 
@@ -353,6 +360,20 @@ Template.interface.events({
 		console.log(objects);
 		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
 		//scene.add(objects);
+		render();
+	},
+	'click #clear'(event, instance) {
+		var length = objects.length;
+		for (var i = 0; i < length; i++) {
+			console.log("remove");
+			scene.remove(objects[i]);
+			console.log(objects);
+		}
+		for (var i = 0; i < length; i++) {
+			console.log("pop");
+			objects.pop()
+			console.log(objects);
+		}
 		render();
 	}
 });
