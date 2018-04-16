@@ -109,6 +109,7 @@ if (Meteor.isClient) {
 		'click #logout'(event, instance) {
 			LOGGED_IN_USER.set("");
 			SHOW_LOGIN.set(true);
+			SHOW_LANDING.set(true);
 		},
 		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
@@ -120,6 +121,7 @@ if (Meteor.isClient) {
 				//clears global value for logged in user, switches back to login screen
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
+				SHOW_LANDING.set(true);
 			}
 		}
 	});
@@ -155,10 +157,10 @@ if (Meteor.isClient) {
 					}
 					else {
 						//set objects to be saved objects from database
-						
 						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
+						console.log("Saved project:");
 						console.log(saved_project.project);
-						reactive_objects.set(saved_project.project);
+						//objects = saved_project.project;
 					}
 				}
 				else {
@@ -200,9 +202,9 @@ renderer.setSize($('#canvas').width(), $('#canvas').height());
 
 
 //THIS IS WHAT WE LOAD AND STORE
-//var objects = []; //array of all objects on map
-var reactive_objects = new ReactiveVar([]);
-var objects = reactive_objects.get();
+var objects = []; //array of all objects on map
+//var reactive_objects = new ReactiveVar([]);
+//var objects = reactive_objects.get();
 
 
 //cube impl
@@ -344,7 +346,13 @@ Template.interface.events({
 		render();
 	},
 	'click #save'(event, instance) {
+		console.log("objects:");
+		console.log(objects);
 		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
+		console.log("objects:");
+		console.log(objects);
+		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
+		//scene.add(objects);
 		render();
 	}
 });
