@@ -14,16 +14,19 @@ if (Meteor.isClient) {
 	
 	//boolean for whether to show the login screen.  We might change the structure of this when we add more views
 	SHOW_LOGIN = new ReactiveVar(true);
+	SHOW_LANDING = new ReactiveVar(true);
+	PROJECT_NAME = new ReactiveVar("");
 
 	Template.container.onCreated(function() {
 		//creates client side verson of database
 		Accounts = new Mongo.Collection('accounts');
+		Projects = new Mongo.Collection('projects');
 	});
 
 	Template.container.helpers({
 		//returns the boolean value of whether to show login screen
-		show_login : function() {
-			return SHOW_LOGIN.get();
+		show_landing : function() {
+			return SHOW_LANDING.get();
 		}
 	});
 
@@ -31,6 +34,7 @@ if (Meteor.isClient) {
 		//holds value of what users type into username textbox
 		this.username = new ReactiveVar("");
 		this.password = new ReactiveVar("");
+		this.project_name = new ReactiveVar("");
 	});
 
 	Template.login.events({
@@ -94,6 +98,9 @@ if (Meteor.isClient) {
 		//returns logged in user's username
 		name : function() {
 			return LOGGED_IN_USER.get();
+		},
+		show_landing : function() {
+			return SHOW_LANDING.get();
 		}
 	});
 
@@ -103,7 +110,7 @@ if (Meteor.isClient) {
 			LOGGED_IN_USER.set("");
 			SHOW_LOGIN.set(true);
 		},
-		'click #delete'(event, instance) {
+		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
 			if (confirm("Do you want to delete this account?")) {
 
@@ -115,49 +122,80 @@ if (Meteor.isClient) {
 				SHOW_LOGIN.set(true);
 			}
 		}
-	})
+	});
+
+	Template.landing.helpers({
+		show_login : function() {
+			return SHOW_LOGIN.get();
+		}
+	});
+
+	Template.project.onCreated( function() {
+		this.project_name = new ReactiveVar("");
+		this.status = new ReactiveVar("");
+	});
+
+	Template.project.events({
+		'change #project_status'(event, instance) {
+			instance.status.set($(event.currentTarget).val());
+		},
+		'click #go'(event, instance) {
+			instance.project_name.set($('#project_name').val());
+			if (instance.project_name.get() === "") {
+				alert("Please enter a project name");
+			}
+			else if (instance.status.get() === "") {
+				alert("Please select what to work on");
+			}
+			else {
+				PROJECT_NAME.set(instance.project_name.get());
+				if (instance.status.get() === "Saved Project") {
+					if (!Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
+						alert("Project does not exist");
+					}
+					else {
+						//set objects to be saved objects from database
+					}
+				}
+				else {
+					if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : instance.project_name.get() }).count()) {
+						alert("Project already exists");
+					}
+				}
+				SHOW_LANDING.set(false);
+			}
+		}
+
+	});
 
 }
 
 
-
-
-// Template.hello.onCreated(function helloOnCreated() {
-//   // counter starts at 0
-//   this.counter = new ReactiveVar(0);
-// });
-
-
-// Template.hello.helpers({
-//   counter() {
-//     return Template.instance().counter.get();
-//   },
-// });
-
-// Template.hello.events({
-//   'click button'(event, instance) {
-//     // increment the counter when button is clicked
-//     instance.counter.set(instance.counter.get() + 1);
-//   },
-// });
-
 //////////////////////
 //THREE JS variables//
 //////////////////////
+
 var dropColor = "red";
 var dropGeo = "square";
-var curControl = "mouse";  //values: "mouse" "keyboard"
 var mode = "add"; //checks insertion mode.  Values are "add" "move" "delete"
 var isMoving = false;  //checks if, while in 'move' mode you are moving or selecting an object
+
 var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
 var mouse = new THREE.Vector2(); //holds location of mouse on screen
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+
+var scene = new THREE.Scene();//main scene of game
+var smallScene = new THREE.Scene(); //smaller box that shows currently selected block
+
+var camera = new THREE.PerspectiveCamera(45, $("#canvas").width() / $("#canvas").height(), 1, 1000);
+var smallCamera = new THREE.PerspectiveCamera(45, $("#smallScene").width / $("#smallScene").height(), 1, 100);
+
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
-
 renderer.setClearColor(0xddeeff);
-renderer.setSize(window.innerWidth, window.innerHeight);
+
+var smallRenderer = new THREE.WebGLRenderer();
+smallRenderer.shadowMap.enabled = true;
+smallRenderer.setClearColor(0xddeeff);
 
 
 //THIS IS WHAT WE LOAD AND STORE
@@ -166,10 +204,12 @@ var objects = []; //array of all objects on map
 //cube impl
 var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
 var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
-//var stone_texture = new THREE.TextureLoader().load('add later');
+
 
 camera.position.set(100, 100, 200);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
+smallCamera.position.set(20, 0, 20);
+smallCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
 var gridSize = 200;
 var gridDivs = 20;
@@ -183,6 +223,9 @@ rollOverMesh.name = 'squareMesh';
 rollOverMesh.position.addScalar(10);
 scene.add(rollOverMesh);
 
+var testObj = new THREE.Mesh(globe_geometry, globe_material);
+
+
 scene.add(grid);
 var unitBlock = new THREE.BoxGeometry(10, 10, 10);
 var square = new THREE.BoxGeometry(20, 20, 20);
@@ -192,7 +235,7 @@ var wall = new THREE.BoxGeometry(5, 20, 20);
 var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
 var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
 var sphere = new THREE.SphereGeometry(5, 10, 10);
-var tile = new THREE.PlaneGeometry(10,10);
+var tile = new THREE.PlaneGeometry(5,5);
 tile.rotateX(-Math.PI / 2);
 
 
@@ -240,24 +283,35 @@ scene.add(light);
 
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
-controls.addEventListener('change', function () { renderer.render(scene, camera); });
 
-
+var texture = new THREE.TextureLoader();
 //similar to $(document).ready;
+
 Template.interface.onRendered(function () {
+	testObj.position.x = 0;
+	testObj.position.y = 0;
+	testObj.position.z = 0;
+	testObj.name = "testObj";
+	smallScene.name = "smallScene";
+	smallScene.add(testObj);
+	console.log(testObj);
+	console.log(smallScene);
+	texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
+	smallRenderer.setSize($('#smallScene').width(), $('#smallScene').height());
 	$("#canvas").append(renderer.domElement);
+	$('#smallScene').append(smallRenderer.domElement);
 	
     //javascript event listeners
     $('#canvas').mousemove(onDocumentMouseMove);
-    $('#canvas').click(onDocumentMouseDown);
-
-    window.addEventListener('keydown', arrowKeys, true);
-    window.addEventListener('keyup', enterKey, false);
+    $('#canvas').mousedown(onDocumentMouseDown);
+	controls.addEventListener('change', function () { renderer.render(scene, camera); });
+    window.keydown(arrowKeys, false);
     window.addEventListener('resize', onWindowResize, false);
-    renderer.render(scene, camera);
+    render();
+
 });
 
 Template.interface.events({
@@ -287,9 +341,6 @@ Template.interface.events({
 		render();
 	},
 	
-	'click [name="control"]': function(event, template) {
-		curControl = $(event.currentTarget).val();
-	},
 	'click #rotate' : function(event, template){
 		rotateMesh();
 	},
@@ -302,13 +353,21 @@ Template.interface.events({
 		dropGeo = $(event.currentTarget).val();
 		SwitchGeo(dropGeo);
 		render();
+	},
+	'click #save'(event, instance) {
+		var project = {"objects" : objects};
+		if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
+			//remove entry and reinsert
+		}
+		else {
+			Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
+		}
 	}
 });
 
 //Javascript functions
 function onDocumentMouseMove(event) {  //taken from threejs.org
-                if (curControl == "mouse") {
-                    //event.preventDefault();
+                
 					var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
@@ -317,19 +376,17 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                     if (intersects.length > 0) {
                         var intersect = intersects[0];
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-                        rollOverMesh.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+                        rollOverMesh.position.floor().addScalar(10);
                         if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
 						if (dropGeo == "tile") rollOverMesh.translateY(-9);
-						if (rollOverGeo == wall) rollOverMesh.translateX(-2);
+						//if (rollOverGeo == wall) rollOverMesh.translateX(-2);
                     }
                     render();
-                }
     }
 
 	
 function onDocumentMouseDown(event) {
-                //event.preventDefault();
-                if (curControl == "mouse") {
+					event.stopPropagation();
                     var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
@@ -345,7 +402,7 @@ function onDocumentMouseDown(event) {
                         }
 						else if (mode == "move"){
 							if(!isMoving){
-								if( intersect.object != plane){
+								if( intersect.object != plane && intersect.object.geometry != tile){
 									setRollOverFromBlock(intersect.object);
 									scene.remove(intersect.object);
 									objects.splice(objects.indexOf(intersect.object), 1);
@@ -353,56 +410,61 @@ function onDocumentMouseDown(event) {
 								}
 							}
 							else{
-								addBlock(intersect);
+								addBlock();
 								isMoving = false;
 								rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.5, transparent: true });
 								SwitchGeo("unitBlock");
 							}
 						}
                         else {  //mode == add
-                            addBlock(intersect);
+                            addBlock();
                         }
                     }
                     render();
-                }
     }
 
 function arrowKeys(event) {
-                render();
-                if (curControl = "keyboard") {
                     event.preventDefault();
                     event.stopPropagation();
+					var delta = clock.getDelta(); //seconds
+					var moveDistance = 100 * delta; //move 100 pixels per second
+					if (event.keyCode == 32){
+						spaceKey();
+					}
                     if (event.keyCode == 37) {  //left arrow
-                        rollOverMesh.translateX(-1);
+                        rollOverMesh.position.x -= moveDistance;
+						rollOverMesh.position.floor()
 						//keyCollision();
                     }
                     else if (event.keyCode == 38) { //up arrow
-                        rollOverMesh.translateZ(-1);
+                       rollOverMesh.position.z -= moveDistance;
+						rollOverMesh.position.floor()
 						//keyCollision();
                     }
                     else if (event.keyCode == 39) { //right arrow
-                        rollOverMesh.translateX(1);
+                        rollOverMesh.position.x += moveDistance;
+						rollOverMesh.position.floor()
 						//keyCollision();
                     }
                     else if (event.keyCode == 40) { //down arrow
-                        rollOverMesh.translateZ(1);
+                        rollOverMesh.position.z += moveDistance;
+						rollOverMesh.position.floor()
 						//keyCollision();
 
                     }
 					else if (event.keyCode == 90){
+						if (rollOverMesh.position.y > 0){
 						rollOverMesh.translateY(-5);
+						}
 					}
 					else if (event.keyCode == 88){
 						rollOverMesh.translateY(5);
 					}
                     render();
-                }
+					return true;
     }
 
-function enterKey(event) {
-                if (curControl == "keyboard") {
-                    event.preventDefault();
-                    if (event.keyCode == 13) {
+function spaceKey() {
                         if (mode == "delete") {
                             for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
                                 var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
@@ -449,11 +511,9 @@ function enterKey(event) {
 							}
 						}
                         else {  //mode == add
-                            addBlock(rollOverMesh.position);
+                            addBlock();
                         }
-                    }
                     render();
-                }
 }
 
 //returns list of all objects (including plane) reticle collides with
@@ -579,23 +639,24 @@ function SwitchGeo(val) {
 }
 
 function changeRollOverMesh(string) {
+	
 	//save current position of rollOverMesh for replacement
     position = rollOverMesh.position;
     scene.remove(rollOverMesh);
     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
     rollOverMesh.name = string + "Mesh";
     scene.add(rollOverMesh);
+	
     //put rollOverMesh at old spot
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
-    if (dropGeo != "tile")rollOverMesh.position.setZ(position.getComponent(2));
-	if (dropGeo == "wall") {rollOverMesh.translateX(-2);}
-	if (dropGeo == "tile") rollOverMesh.translateY(-9.5);
+    rollOverMesh.position.setZ(position.getComponent(2));
 }
 
 function setRollOverFromBlock(block){
 	globe_geometry = block.geometry;
 	globe_material = block.material;
+	
 	//save current position of block for replacement
     position = block.position;
     scene.remove(rollOverMesh);
@@ -609,11 +670,12 @@ function setRollOverFromBlock(block){
     rollOverMesh.position.setZ(position.getComponent(2));
 }
 
-function addBlock(position){
+function addBlock(){
 	cur_geo = globe_geometry;
+	console.log(texture.path);
 	var cur_color;
 	if (!isMoving){
-       cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
+       cur_color = new THREE.MeshBasicMaterial({ color: dropColor });
 	}
 	else cur_color = globe_material;
     block = new THREE.Mesh(cur_geo, cur_color);
@@ -623,49 +685,69 @@ function addBlock(position){
     block.receiveShadow = true;
 	
 	//set position of block from position vector
-	if(curControl == "keyboard"){
-		block.position.setX(position.getComponent(0));
-		block.position.setY(position.getComponent(1));
-		if (dropGeo != "tile") block.position.setZ(position.getComponent(2));
-		block.translateX(-10);
-		block.translateY(-10);
-		block.translateZ(-10);
-	}
-	else if (curControl == "mouse"){
-		block.position.copy(position.point).add(position.face.normal);
-	}
+	block.position.setX(rollOverMesh.position.x);
+	block.position.setY(rollOverMesh.position.y);
+	block.position.setZ(rollOverMesh.position.z);
+	block.translateX(-10);
+	block.translateY(-10);
+	block.translateZ(-10);
+	
 	//Make block motion discrete, not continuous
-    block.position.divideScalar(5).floor().multiplyScalar(5).addScalar(10);
+    block.position.floor().addScalar(10);
     scene.add(block);
 	block.rotation.x = rollOverMesh.rotation.x;
 	block.rotation.y = rollOverMesh.rotation.y;
 	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
-	if (dropGeo == "wall") {
-		if (curControl == "mouse") block.translateX(-2);
-		else block.translateX(2.5);
-		console.log("block translated")
-	}
-	if (dropGeo == "tile") block.translateY(-9);
-
-	//console.log(block);
     objects.push(block);
 }	
 
 function rotateMesh(){
-	//if (dropGeo == "tile") rollOverMesh.rotateX(Math.PI / 2);
 	if (dropGeo != "tile") rollOverMesh.rotateY(Math.PI / 2);
-	render();
 }
 
 function onWindowResize() {
 				container = document.getElementById("canvas");
-                camera.aspect = $(container).width() / $(container).height();
+                camera.aspect = $('#canvas').width() / $("#canvas").height();
                 camera.updateProjectionMatrix();
-				renderer.setSize($(container).width(), $(container).height());                
+				renderer.setSize($("#canvas").width(), $("#canvas").height());                
 				render();
 }
 	
 function render() {
-        renderer.render(scene, camera);
+	/*renderer.setScissorTest(false);
+	renderer.clear();
+	renderer.setScissorTest( true );
+	var height = $("#canvas").position.bottom - $("#canvas").position.top;
+	var width = $("#canvas").position.right - $("#canvas").position.left;
+	var left = $("#canvas").position.left;
+	var top = $("#canvas").position.top;
+	var smallHeight = $("#smallScene").position.bottom - $("#smallScene").position.top;
+	var smallWidth = $("#smallScene").position.right - $("#smallScene").position.left;
+	var smallLeft = $("#smallScene").position.left;
+	var smallTop = $("#smallScene").position.top;
+	
+	renderer.setViewport(smallLeft, smallTop, smallWidth, smallHeight);
+	renderer.setScissor(smallLeft, smallTop, smallWidth, smallHeight);
+    renderer.render(smallScene, smallCamera);
+	
+	//render main scene
+	renderer.setViewport(left, top, width, height);
+	renderer.setScissor(left, top, width, height);
+    renderer.render(scene, camera);
+	
+	//render second scene
+	
+	//renderer.render(smallScene, smallCamera);*/
+	if (smallScene.length > 0){
+		console.log("object present before render");
+	}
+	else{ console.log("SMALL SCENE PASSAGE ERROR");
+	renderer.render(scene, camera);
+	}
+	smallRenderer.render(smallScene, smallCamera);
+	if (smallScene.length > 0){
+		console.log("object present after render");
+	}
+	else {console.log("SMALL SCENE RENDER ERROR");}
 }
 
