@@ -197,7 +197,7 @@ var objects = []; //array of all objects on map
 //cube impl
 var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
 var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
-//var stone_texture = new THREE.TextureLoader().load('add later');
+
 
 camera.position.set(100, 100, 200);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -273,9 +273,10 @@ scene.add(light);
 var controls = new OrbitControls(camera, renderer.domElement);
 
 controls.enableKeys = false;
-
+var texture = new THREE.TextureLoader();
 //similar to $(document).ready;
 Template.interface.onRendered(function () {
+	texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -288,6 +289,7 @@ Template.interface.onRendered(function () {
     window.keydown(arrowKeys, false);
     window.addEventListener('resize', onWindowResize, false);
     renderer.render(scene, camera);
+
 });
 
 Template.interface.events({
@@ -641,9 +643,10 @@ function setRollOverFromBlock(block){
 
 function addBlock(){
 	cur_geo = globe_geometry;
+	console.log(texture.path);
 	var cur_color;
-	if (!isMoving){
-       cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
+	if (!isMoving){8
+       cur_color = new THREE.MeshBasicMaterial({ map: texture });
 	}
 	else cur_color = globe_material;
     block = new THREE.Mesh(cur_geo, cur_color);
