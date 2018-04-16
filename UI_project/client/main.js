@@ -155,6 +155,10 @@ if (Meteor.isClient) {
 					}
 					else {
 						//set objects to be saved objects from database
+						
+						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
+						console.log(saved_project.project);
+						reactive_objects.set(saved_project.project);
 					}
 				}
 				else {
@@ -196,7 +200,10 @@ renderer.setSize($('#canvas').width(), $('#canvas').height());
 
 
 //THIS IS WHAT WE LOAD AND STORE
-var objects = []; //array of all objects on map
+//var objects = []; //array of all objects on map
+var reactive_objects = new ReactiveVar([]);
+var objects = reactive_objects.get();
+
 
 //cube impl
 var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
@@ -280,7 +287,7 @@ controls.enableKeys = false;
 var texture = new THREE.TextureLoader();
 //similar to $(document).ready;
 Template.interface.onRendered(function () {
-	texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
+	//texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -337,13 +344,8 @@ Template.interface.events({
 		render();
 	},
 	'click #save'(event, instance) {
-		var project = {"objects" : objects};
-		if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
-			//remove entry and reinsert
-		}
-		else {
-			Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
-		}
+		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
+		render();
 	}
 });
 
@@ -650,7 +652,8 @@ function addBlock(){
 	console.log(texture.path);
 	var cur_color;
 	if (!isMoving){8
-       cur_color = new THREE.MeshBasicMaterial({ map: texture });
+		cur_color = new THREE.MeshBasicMaterial({ color: dropColor });
+       //cur_color = new THREE.MeshBasicMaterial({ map: texture });
 	}
 	else cur_color = globe_material;
     block = new THREE.Mesh(cur_geo, cur_color);
