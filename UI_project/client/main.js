@@ -109,7 +109,6 @@ if (Meteor.isClient) {
 		'click #logout'(event, instance) {
 			LOGGED_IN_USER.set("");
 			SHOW_LOGIN.set(true);
-			SHOW_LANDING.set(true);
 		},
 		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
@@ -121,7 +120,6 @@ if (Meteor.isClient) {
 				//clears global value for logged in user, switches back to login screen
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
-				SHOW_LANDING.set(true);
 			}
 		}
 	});
@@ -157,10 +155,6 @@ if (Meteor.isClient) {
 					}
 					else {
 						//set objects to be saved objects from database
-						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
-						console.log("Saved project:");
-						console.log(saved_project.project);
-						//objects = saved_project.project;
 					}
 				}
 				else {
@@ -192,10 +186,8 @@ var mouse = new THREE.Vector2(); //holds location of mouse on screen
 var scene = new THREE.Scene();//main scene of game
 var smallScene = new THREE.Scene(); //smaller box that shows currently selected block
 
-
 var camera = new THREE.PerspectiveCamera(45, $("#canvas").width() / $("#canvas").height(), 1, 1000);
-var smallCamera = new THREE.PerspectiveCamera(45, $("#smallScene").width / $("#smallScene").height(), 1, 100);
-
+var smallCamera = new THREE.PerspectiveCamera(45, 1, 1, 100);
 
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
@@ -206,12 +198,8 @@ smallRenderer.shadowMap.enabled = true;
 smallRenderer.setClearColor(0xddeeff);
 
 
-
 //THIS IS WHAT WE LOAD AND STORE
 var objects = []; //array of all objects on map
-//var reactive_objects = new ReactiveVar([]);
-//var objects = reactive_objects.get();
-
 
 //cube impl
 var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
@@ -220,7 +208,7 @@ var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
 
 camera.position.set(100, 100, 200);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
-smallCamera.position.set(20, 0, 20);
+smallCamera.position.set(50, 50, 50);
 smallCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
 var gridSize = 200;
@@ -236,7 +224,12 @@ rollOverMesh.position.addScalar(10);
 scene.add(rollOverMesh);
 
 var testObj = new THREE.Mesh(globe_geometry, globe_material);
-
+testObj.position.x = 0;
+	testObj.position.y = 0;
+	testObj.position.z = 0;
+	testObj.name = "testObj";
+	smallScene.name = "smallScene";
+	smallScene.add(testObj);
 
 scene.add(grid);
 var unitBlock = new THREE.BoxGeometry(10, 10, 10);
@@ -290,27 +283,23 @@ scene.add(ambientLight);
 
 var light = new THREE.SpotLight(0xffffff, 1.6);
 light.position.copy(camera.position);
-light.shadowCameraVisible = true;
 scene.add(light);
+
+var smallLight = new THREE.SpotLight(0xffffff, 1.6);
+smallLight.position.copy(smallCamera.position);
+smallScene.add(smallLight);
 
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
-
 
 var texture = new THREE.TextureLoader();
 //similar to $(document).ready;
 
 Template.interface.onRendered(function () {
-	testObj.position.x = 0;
-	testObj.position.y = 0;
-	testObj.position.z = 0;
-	testObj.name = "testObj";
-	smallScene.name = "smallScene";
-	smallScene.add(testObj);
+	
 	console.log(testObj);
 	console.log(smallScene);
 	texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
-
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -325,7 +314,6 @@ Template.interface.onRendered(function () {
     window.keydown(arrowKeys, false);
     window.addEventListener('resize', onWindowResize, false);
     render();
-
 
 });
 
@@ -362,23 +350,41 @@ Template.interface.events({
 	
 	"change #color": function(event, template){
 		dropColor = $(event.currentTarget).val();
+		globe_material = new THREE.MeshLambertMaterial({color : dropColor});
+		console.log(globe_material);
+		console.log(globe_geometry);
+		position = testObj.position;
+		smallScene.remove(testObj);
+		testObj = new THREE.Mesh(globe_geometry, globe_material);
+		smallScene.add(testObj);
+		testObj.position.setX(position.getComponent(0));
+		testObj.position.setY(position.getComponent(1));
+		testObj.position.setZ(position.getComponent(2));
+		render();
 	},
 	
 	"change #geo": function(event, template){
 		dropGeo = $(event.currentTarget).val();
 		SwitchGeo(dropGeo);
+		console.log(globe_material);
+		console.log(globe_geometry);
+		position = testObj.position;
+		smallScene.remove(testObj);
+		testObj = new THREE.Mesh(globe_geometry, globe_material);
+		smallScene.add(testObj);
+		testObj.position.setX(position.getComponent(0));
+		testObj.position.setY(position.getComponent(1));
+		testObj.position.setZ(position.getComponent(2));
 		render();
 	},
 	'click #save'(event, instance) {
-
-		console.log("objects:");
-		console.log(objects);
-		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
-		console.log("objects:");
-		console.log(objects);
-		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
-		//scene.add(objects);
-		render();
+		var project = {"objects" : objects};
+		if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
+			//remove entry and reinsert
+		}
+		else {
+			Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
+		}
 	}
 });
 
@@ -396,6 +402,7 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                         rollOverMesh.position.floor().addScalar(10);
                         if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
 						if (dropGeo == "tile") rollOverMesh.translateY(-9);
+						//if (rollOverGeo == wall) rollOverMesh.translateX(-2);
                     }
                     render();
     }
@@ -444,7 +451,6 @@ function arrowKeys(event) {
                     event.stopPropagation();
 					var delta = clock.getDelta(); //seconds
 					var moveDistance = 100 * delta; //move 100 pixels per second
-
 					if (event.keyCode == 32){
 						spaceKey();
 					}
@@ -466,7 +472,6 @@ function arrowKeys(event) {
                     else if (event.keyCode == 40) { //down arrow
                         rollOverMesh.position.z += moveDistance;
 						rollOverMesh.position.floor()
-
 						//keyCollision();
 
                     }
@@ -479,6 +484,7 @@ function arrowKeys(event) {
 						rollOverMesh.translateY(5);
 					}
                     render();
+					return true;
     }
 
 function spaceKey() {
@@ -692,7 +698,7 @@ function addBlock(){
 	console.log(texture.path);
 	var cur_color;
 	if (!isMoving){
-       cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
+       cur_color = new THREE.MeshBasicMaterial({ color: dropColor });
 	}
 	else cur_color = globe_material;
     block = new THREE.Mesh(cur_geo, cur_color);
@@ -723,7 +729,6 @@ function rotateMesh(){
 }
 
 function onWindowResize() {
-				container = document.getElementById("canvas");
                 camera.aspect = $('#canvas').width() / $("#canvas").height();
                 camera.updateProjectionMatrix();
 				renderer.setSize($("#canvas").width(), $("#canvas").height());                
@@ -731,40 +736,7 @@ function onWindowResize() {
 }
 	
 function render() {
-	/*renderer.setScissorTest(false);
-	renderer.clear();
-	renderer.setScissorTest( true );
-	var height = $("#canvas").position.bottom - $("#canvas").position.top;
-	var width = $("#canvas").position.right - $("#canvas").position.left;
-	var left = $("#canvas").position.left;
-	var top = $("#canvas").position.top;
-	var smallHeight = $("#smallScene").position.bottom - $("#smallScene").position.top;
-	var smallWidth = $("#smallScene").position.right - $("#smallScene").position.left;
-	var smallLeft = $("#smallScene").position.left;
-	var smallTop = $("#smallScene").position.top;
-	
-	renderer.setViewport(smallLeft, smallTop, smallWidth, smallHeight);
-	renderer.setScissor(smallLeft, smallTop, smallWidth, smallHeight);
-    renderer.render(smallScene, smallCamera);
-	
-	//render main scene
-	renderer.setViewport(left, top, width, height);
-	renderer.setScissor(left, top, width, height);
-    renderer.render(scene, camera);
-	
-	//render second scene
-	
-	//renderer.render(smallScene, smallCamera);*/
-	if (smallScene.length > 0){
-		console.log("object present before render");
-	}
-	else{ console.log("SMALL SCENE PASSAGE ERROR");
-	renderer.render(scene, camera);
-	}
 	smallRenderer.render(smallScene, smallCamera);
-	if (smallScene.length > 0){
-		console.log("object present after render");
-	}
-	else {console.log("SMALL SCENE RENDER ERROR");}
+	renderer.render(scene, camera);
 }
 
