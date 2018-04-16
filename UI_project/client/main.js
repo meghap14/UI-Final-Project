@@ -253,7 +253,6 @@ Template.interface.onRendered(function () {
     $('#canvas').mousedown(onDocumentMouseDown);
 	controls.addEventListener('change', function () { renderer.render(scene, camera); });
     window.addEventListener('keydown', arrowKeys, true);
-    window.addEventListener('keyup', enterKey, false);
     window.addEventListener('resize', onWindowResize, false);
     renderer.render(scene, camera);
 });
@@ -321,8 +320,6 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
 
 	
 function onDocumentMouseDown(event) {
-                //event.preventDefault();
-                //if (curControl == "mouse") {
 					event.stopPropagation();
                     var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
@@ -339,7 +336,7 @@ function onDocumentMouseDown(event) {
                         }
 						else if (mode == "move"){
 							if(!isMoving){
-								if( intersect.object != plane){
+								if( intersect.object != plane && intersect.object.geometry != tile){
 									setRollOverFromBlock(intersect.object);
 									scene.remove(intersect.object);
 									objects.splice(objects.indexOf(intersect.object), 1);
@@ -358,13 +355,14 @@ function onDocumentMouseDown(event) {
                         }
                     }
                     render();
-                //}
     }
 
 function arrowKeys(event) {
-                //if (curControl = "keyboard") {
                     event.preventDefault();
                     event.stopPropagation();
+					if (event.keyCode == 32){
+						spaceKey();
+					}
                     if (event.keyCode == 37) {  //left arrow
                         rollOverMesh.translateX(-1);
 						//keyCollision();
@@ -391,13 +389,9 @@ function arrowKeys(event) {
 						rollOverMesh.translateY(5);
 					}
                     render();
-                //}
     }
 
-function enterKey(event) {
-                //if (curControl == "keyboard") {
-                    event.preventDefault();
-                    if (event.keyCode == 13) {
+function spaceKey() {
                         if (mode == "delete") {
                             for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
                                 var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
@@ -446,9 +440,7 @@ function enterKey(event) {
                         else {  //mode == add
                             addBlock();
                         }
-                    }
                     render();
-               //}
 }
 
 //returns list of all objects (including plane) reticle collides with
@@ -574,23 +566,24 @@ function SwitchGeo(val) {
 }
 
 function changeRollOverMesh(string) {
+	
 	//save current position of rollOverMesh for replacement
     position = rollOverMesh.position;
     scene.remove(rollOverMesh);
     rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
     rollOverMesh.name = string + "Mesh";
     scene.add(rollOverMesh);
+	
     //put rollOverMesh at old spot
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
-    if (dropGeo != "tile")rollOverMesh.position.setZ(position.getComponent(2));
-	if (dropGeo == "wall") {rollOverMesh.translateX(-2);}
-	if (dropGeo == "tile") rollOverMesh.translateY(-9.5);
+    rollOverMesh.position.setZ(position.getComponent(2));
 }
 
 function setRollOverFromBlock(block){
 	globe_geometry = block.geometry;
 	globe_material = block.material;
+	
 	//save current position of block for replacement
     position = block.position;
     scene.remove(rollOverMesh);
@@ -618,25 +611,19 @@ function addBlock(){
     block.receiveShadow = true;
 	
 	//set position of block from position vector
-		block.position.setX(rollOverMesh.position.x);
-		block.position.setY(rollOverMesh.position.y);
-		if (dropGeo != "tile") block.position.setZ(rollOverMesh.position.z);
-		block.translateX(-10);
-		block.translateY(-10);
-		block.translateZ(-10);
+	block.position.setX(rollOverMesh.position.x);
+	block.position.setY(rollOverMesh.position.y);
+	block.position.setZ(rollOverMesh.position.z);
+	block.translateX(-10);
+	block.translateY(-10);
+	block.translateZ(-10);
+	
 	//Make block motion discrete, not continuous
     block.position.floor().addScalar(10);
     scene.add(block);
 	block.rotation.x = rollOverMesh.rotation.x;
 	block.rotation.y = rollOverMesh.rotation.y;
 	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
-	/*if (dropGeo == "wall") {
-		if (curControl == "mouse") block.translateX(-2);
-		else block.translateX(2.5);
-		console.log("block translated")
-	}*/
-	if (dropGeo == "tile") block.translateY(-9);
-
     objects.push(block);
 }	
 
