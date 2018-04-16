@@ -7,11 +7,11 @@
 </body>
 
 <template name="container">
-    <!-- {{ #if show_login }}
-        {{> login}}
-    {{ else }} -->
+    {{ #if show_landing }}
+        {{> landing}}
+    {{ else }}
         {{> main_page}}
-    <!-- {{ /if }}  -->
+    {{ /if }}
 </template>
 
 <template name="main_page">
@@ -21,7 +21,7 @@
     
     </div>
     <div class="headercolumn">
-    {{> welcome}}  
+        {{> welcome}}  
     </div>
     </header>
     <div class="loggedin">
@@ -87,9 +87,9 @@
         </div>
         <button id="rotate">Rotate</button>
 		<br>
-        <button class="options" id="create">Save</button>
+        <button class="options" id="save">Save</button>
         <br>
-        <button class="options" id="create">Clear</button>
+        <button class="options" id="clear">Clear</button>
     </div>
 
     <!-- display build here -->
@@ -98,6 +98,15 @@
     </div>
 </div>
 
+</template>
+
+<template name="landing">
+    {{ #if show_login}}
+        {{> login}}
+    {{ else }}
+        {{> welcome}}
+    {{ /if }}
+    
 </template>
 
 <!-- login/create account box -->
@@ -115,6 +124,19 @@
 
 </template>
 
+<template name="project">
+    <br><br><br><br><span>Work on:</span>
+    <select id="project_status">
+        <option></option>
+        <option>New Project</option>
+        <option>Saved Project</option>
+    </select>
+    <br><br><span>Project name:</span>
+    <input type="text" id="project_name" />
+    <button id="go">Go</button>
+    
+</template>
+
 <!-- if logged in -->
 <template name ="welcome">
 <div>
@@ -122,6 +144,9 @@
     <button id="logout">Log Out</button>
     <button id="delete">Delete Account</button>    
 </div>
+{{ #if show_landing}}
+    {{> project}}
+{{ /if }}
 </template>
 
 

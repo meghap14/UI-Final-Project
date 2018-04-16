@@ -23,7 +23,7 @@ Meteor.startup(() => {
 
   P_Schema.Projects = new SimpleSchema({
   	username : {type : String},
-  	p_name : {type : String},
+  	project_name : {type : String},
   	project : {type : Object} //contains object array
   });
 
@@ -37,5 +37,8 @@ Meteor.methods({
 	},
 	insert_account : function(username, password) {
 		Accounts.insert({username : username, password : password});
-	}
+	},
+  insert_project : function(username, project_name, project) {
+    Projects.insert({ username : username, project_name : project_name, project : project })
+  }
 });

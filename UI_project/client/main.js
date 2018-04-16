@@ -14,16 +14,19 @@ if (Meteor.isClient) {
 	
 	//boolean for whether to show the login screen.  We might change the structure of this when we add more views
 	SHOW_LOGIN = new ReactiveVar(true);
+	SHOW_LANDING = new ReactiveVar(true);
+	PROJECT_NAME = new ReactiveVar("");
 
 	Template.container.onCreated(function() {
 		//creates client side verson of database
 		Accounts = new Mongo.Collection('accounts');
+		Projects = new Mongo.Collection('projects');
 	});
 
 	Template.container.helpers({
 		//returns the boolean value of whether to show login screen
-		show_login : function() {
-			return SHOW_LOGIN.get();
+		show_landing : function() {
+			return SHOW_LANDING.get();
 		}
 	});
 
@@ -31,6 +34,7 @@ if (Meteor.isClient) {
 		//holds value of what users type into username textbox
 		this.username = new ReactiveVar("");
 		this.password = new ReactiveVar("");
+		this.project_name = new ReactiveVar("");
 	});
 
 	Template.login.events({
@@ -94,6 +98,9 @@ if (Meteor.isClient) {
 		//returns logged in user's username
 		name : function() {
 			return LOGGED_IN_USER.get();
+		},
+		show_landing : function() {
+			return SHOW_LANDING.get();
 		}
 	});
 
@@ -115,7 +122,51 @@ if (Meteor.isClient) {
 				SHOW_LOGIN.set(true);
 			}
 		}
-	})
+	});
+
+	Template.landing.helpers({
+		show_login : function() {
+			return SHOW_LOGIN.get();
+		}
+	});
+
+	Template.project.onCreated( function() {
+		this.project_name = new ReactiveVar("");
+		this.status = new ReactiveVar("");
+	});
+
+	Template.project.events({
+		'change #project_status'(event, instance) {
+			instance.status.set($(event.currentTarget).val());
+		},
+		'click #go'(event, instance) {
+			instance.project_name.set($('#project_name').val());
+			if (instance.project_name.get() === "") {
+				alert("Please enter a project name");
+			}
+			else if (instance.status.get() === "") {
+				alert("Please select what to work on");
+			}
+			else {
+				PROJECT_NAME.set(instance.project_name.get());
+				if (instance.status.get() === "Saved Project") {
+					if (!Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
+						alert("Project does not exist");
+					}
+					else {
+						//set objects to be saved objects from database
+					}
+				}
+				else {
+					if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : instance.project_name.get() }).count()) {
+						alert("Project already exists");
+					}
+				}
+				SHOW_LANDING.set(false);
+			}
+		}
+
+	});
 
 }
 
@@ -240,7 +291,6 @@ scene.add(light);
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
 
-
 //similar to $(document).ready;
 Template.interface.onRendered(function () {
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
@@ -296,6 +346,15 @@ Template.interface.events({
 		dropGeo = $(event.currentTarget).val();
 		SwitchGeo(dropGeo);
 		render();
+	},
+	'click #save'(event, instance) {
+		var project = {"objects" : objects};
+		if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
+			//remove entry and reinsert
+		}
+		else {
+			Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
+		}
 	}
 });
 
