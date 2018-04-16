@@ -180,15 +180,19 @@ var dropColor = "red";
 var dropGeo = "square";
 var mode = "add"; //checks insertion mode.  Values are "add" "move" "delete"
 var isMoving = false;  //checks if, while in 'move' mode you are moving or selecting an object
+
 var raycaster = new THREE.Raycaster(); //used to detect where mouse is pointing
 var mouse = new THREE.Vector2(); //holds location of mouse on screen
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+
+var scene = new THREE.Scene();//main scene of game
+var smallScene = new THREE.Scene(); //smaller box that shows currently selected block
+
+var camera = new THREE.PerspectiveCamera(45, $("#canvas").width() / $("#canvas").height(), 1, 500);
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
 
 renderer.setClearColor(0xddeeff);
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize($('#canvas').width(), $('#canvas').height());
 
 
 //THIS IS WHAT WE LOAD AND STORE
@@ -678,9 +682,9 @@ function rotateMesh(){
 
 function onWindowResize() {
 				container = document.getElementById("canvas");
-                camera.aspect = $(container).width() / $(container).height();
+                camera.aspect = $('#canvas').width() / $("#canvas").height();
                 camera.updateProjectionMatrix();
-				renderer.setSize($(container).width(), $(container).height());                
+				renderer.setSize($("#canvas").width(), $("#canvas").height());                
 				render();
 }
 	

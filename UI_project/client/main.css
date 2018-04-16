@@ -6,7 +6,7 @@
     }
 
     body {
-        position: relative;
+    position: relative;
     }
 
     body {
@@ -61,7 +61,8 @@
         text-align: center;
         padding-bottom: 2px;
         height: 500px;
-        
+        background-color: #ddeeff;
+
     }
 
     #buildtable{
@@ -76,7 +77,6 @@
 	}
     
     #menu{
-        background: #ddeeff;
         flex: 20%;
         min-width: 200px;
         text-align: center;
@@ -86,9 +86,11 @@
 
     .options{
 		float: left;
+		left: 0;
         margin: 8px 0px;
         width: 150px;
 		z-index: 100;
+		position: absolute;
     }
 
 
@@ -110,6 +112,7 @@
         list-style-type:none;
         padding:0;
 		display: inline-block;
+		z-index: 100;
     }
 
     .actions li {
