@@ -7,11 +7,11 @@
 </body>
 
 <template name="container">
-    {{ #if show_login }}
+    <!-- {{ #if show_login }}
         {{> login}}
-    {{ else }}
+    {{ else }} -->
         {{> main_page}}
-    {{ /if }} 
+    <!-- {{ /if }}  -->
 </template>
 
 <template name="main_page">
@@ -36,7 +36,6 @@
 <div class="row">
 
     <div id="menu">
-                <label>Action:</label>
                 <br/>
             <ul class="actions">
                 <li>
@@ -56,6 +55,7 @@
 
         
         <div class="color">
+        <label>Color:</label>
 		<select id="color">
             <!--<option value="stone">stone</option>-->
             <option value="red">red</option>
@@ -72,6 +72,7 @@
         </div>
 
         <div class="shape">
+        <label>Shape:</label>
         <select id="geo">
             <option value="square">square</option>
             <option value="rectangle">rectangle</option>
@@ -113,13 +114,10 @@
 <template name="login">
     <div id="form-wrapper">
         <label for="username">Username:</label>
-        <input type="text" id="username">
-        <br>
+        <input type="text" id="username"><br>
         
         <label for="password">Password:</label>
-        <input type="password" id="password">
-        <br>
-        <br>
+        <input type="password" id="password"><br><br>
         
         <button id="create">Create Account</button>
         <button id="login">Log In</button>

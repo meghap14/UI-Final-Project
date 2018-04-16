@@ -14,15 +14,13 @@
     }
 
     #form-wrapper {     
-        width: 250px; /* this is needed */
-        height: 100px; /* this is needed */
-        padding: 10px; /* this is for styling only */
-        background: #eee; /* this is for styling only */
+        width: 250px; 
+        height: 100px; 
+        padding: 10px; 
+        background: #eee; 
         position: relative;
-        margin: auto; /* this is needed */
-        left: auto; /* this is needed */
-         /* this is needed */
-        bottom: auto; /* this is needed */
+        margin: auto; 
+        top: 50%; 
         text-align: center;
     }
     
@@ -67,7 +65,7 @@
     }
 
     #buildtable{
-        background: lightgreen;
+        background: #ddeeff;
         flex: 80%;
         min-width: 800px;
         text-align: center;
@@ -92,24 +90,30 @@
 
     
     .color, .shape{
-        margin: 8px 8px;
+        margin: 15px;
     }
 
 
 
     .actions{
         margin: 8px 0px;
-        height: auto;
+        height: 130px;
         list-style-type:none;
         padding:0;
     }
 
     .actions li {
         float:left;
-        margin:0 5px 0 0;
+        margin: 2px;
         width:100%;
         height:40px;
         position:relative;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 5px;
+        border: solid black 1px;
+   
+        
     }
 
     .actions label {
@@ -120,7 +124,6 @@
         right:0;
         bottom:0;
         padding:5px;
-        border:1px solid #CCC; 
         cursor:pointer;
 
     }
@@ -131,10 +134,16 @@
     }
 
     .actions input[type="radio"]:checked + label {
+        border-radius: 5px;
         background:#e3eaf2;
     }
-    .actions label:hover {
-        background:#DDD;
+    .actions li:hover {
+        /* background:#DDD; */
+        border-radius: 5px;
+        background-color:#F6F6F6;
+
     }
+
+
 
 
