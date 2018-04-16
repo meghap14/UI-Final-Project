@@ -155,14 +155,27 @@ if (Meteor.isClient) {
 					}
 					else {
 						//set objects to be saved objects from database
+
+						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
+						console.log("Saved project:");
+						console.log(saved_project.project);
+						objects = saved_project.project;
+						for (var i = 0; i < saved_project.project.length; i++) {
+							var saved_object = objects[i];
+							scene.add(saved_object);
+						}
+
+						SHOW_LANDING.set(false);
 					}
 				}
 				else {
 					if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : instance.project_name.get() }).count()) {
 						alert("Project already exists");
 					}
+					else {
+						SHOW_LANDING.set(false);
+					}
 				}
-				SHOW_LANDING.set(false);
 			}
 		}
 
@@ -378,13 +391,30 @@ Template.interface.events({
 		render();
 	},
 	'click #save'(event, instance) {
-		var project = {"objects" : objects};
-		if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
-			//remove entry and reinsert
+
+		console.log("objects:");
+		console.log(objects);
+		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
+		console.log("objects:");
+		console.log(objects);
+		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
+		//scene.add(objects);
+		render();
+		SHOW_LANDING.set(true);
+	},
+	'click #clear'(event, instance) {
+		var length = objects.length;
+		for (var i = 0; i < length; i++) {
+			console.log("remove");
+			scene.remove(objects[i]);
+			console.log(objects);
 		}
-		else {
-			Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
+		for (var i = 0; i < length; i++) {
+			console.log("pop");
+			objects.pop()
+			console.log(objects);
 		}
+		render();
 	}
 });
 
