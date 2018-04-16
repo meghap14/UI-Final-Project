@@ -239,7 +239,7 @@ scene.add(light);
 
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
-
+controls.enableKeys = false;
 
 //similar to $(document).ready;
 Template.interface.onRendered(function () {
@@ -252,7 +252,7 @@ Template.interface.onRendered(function () {
     $('#canvas').mousemove(onDocumentMouseMove);
     $('#canvas').mousedown(onDocumentMouseDown);
 	controls.addEventListener('change', function () { renderer.render(scene, camera); });
-    window.addEventListener('keydown', arrowKeys, true);
+    window.keydown(arrowKeys, false);
     window.addEventListener('resize', onWindowResize, false);
     renderer.render(scene, camera);
 });
@@ -358,8 +358,8 @@ function onDocumentMouseDown(event) {
     }
 
 function arrowKeys(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
+                    //event.preventDefault();
+                    //event.stopPropagation();
 					if (event.keyCode == 32){
 						spaceKey();
 					}
