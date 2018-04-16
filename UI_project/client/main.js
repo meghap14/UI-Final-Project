@@ -110,7 +110,7 @@ if (Meteor.isClient) {
 			LOGGED_IN_USER.set("");
 			SHOW_LOGIN.set(true);
 		},
-		'click #delete'(event, instance) {
+		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
 			if (confirm("Do you want to delete this account?")) {
 
@@ -171,30 +171,11 @@ if (Meteor.isClient) {
 }
 
 
-
-
-// Template.hello.onCreated(function helloOnCreated() {
-//   // counter starts at 0
-//   this.counter = new ReactiveVar(0);
-// });
-
-
-// Template.hello.helpers({
-//   counter() {
-//     return Template.instance().counter.get();
-//   },
-// });
-
-// Template.hello.events({
-//   'click button'(event, instance) {
-//     // increment the counter when button is clicked
-//     instance.counter.set(instance.counter.get() + 1);
-//   },
-// });
-
 //////////////////////
 //THREE JS variables//
 //////////////////////
+
+
 var dropColor = "red";
 var dropGeo = "square";
 var mode = "add"; //checks insertion mode.  Values are "add" "move" "delete"
@@ -290,10 +271,8 @@ scene.add(light);
 
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
-<<<<<<< HEAD
-=======
+
 controls.enableKeys = false;
->>>>>>> c282a3bb4fea7fdd8cda04cb8fc96200ac2b2326
 
 //similar to $(document).ready;
 Template.interface.onRendered(function () {
