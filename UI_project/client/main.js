@@ -160,9 +160,10 @@ if (Meteor.isClient) {
 						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
 						console.log("Saved project:");
 						console.log(saved_project.project);
-						//objects = saved_project.project;
+						objects = saved_project.project;
 						for (var i = 0; i < saved_project.project.length; i++) {
-							scene.add(saved_project.project[i]);
+							var saved_object = objects[i];
+							scene.add(saved_object);
 						}
 
 						SHOW_LANDING.set(false);
@@ -361,6 +362,7 @@ Template.interface.events({
 		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
 		//scene.add(objects);
 		render();
+		SHOW_LANDING.set(true);
 	},
 	'click #clear'(event, instance) {
 		var length = objects.length;

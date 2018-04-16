@@ -5,6 +5,8 @@ import SimpleSchema from 'simpl-schema'
 Meteor.startup(() => {
   // code to run on server at startup
 
+  var THREE = require('three');
+
   //creates server side Accounts database (so info persists on refresh)
   Accounts = new Mongo.Collection('accounts');
 
@@ -19,16 +21,16 @@ Meteor.startup(() => {
 
   Projects = new Mongo.Collection('projects');
 
-  /*P_Schema = {};
+  P_Schema = {};
 
   P_Schema.Projects = new SimpleSchema({
   	username : {type : String},
   	project_name : {type : String},
   	project : {type : Array}, 
-    'project.$' : {type : Mesh}
+    'project.$' : {type : THREE.Mesh}
   });
 
-  Projects.attachSchema(P_Schema.Projects);*/
+  Projects.attachSchema(P_Schema.Projects);
 
 });
 
