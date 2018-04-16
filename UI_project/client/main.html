@@ -53,7 +53,7 @@
             </ul>
 
 
-        
+        <br>
         <div class="color">
         <label>Color:</label>
 		<select id="color">
@@ -70,7 +70,6 @@
             <option value="gray">gray</option>
         </select>
         </div>
-
         <div class="shape">
         <label>Shape:</label>
         <select id="geo">
@@ -85,16 +84,19 @@
             <option value="tile">tile</option>
         </select>
         </div>
+		<br>
         <button id="rotate">Rotate</button>
 		<br>
-        <button class="options" id="save">Save</button>
-        <br>
-        <button class="options" id="clear">Clear</button>
-    </div>
+        
+    <!-- </div>
 
-    <!-- display build here -->
-    <div id="buildtable">
+    display build here 
+    <div id="buildtable">-->
         {{> table}}
+		<button class="options" id="save">Save</button>
+        <br>
+		<br>
+        <button class="options" id="clear">Clear</button>
     </div>
 </div>
 
@@ -151,6 +153,6 @@
 
 
 <template name="table">
-        <div  id="canvas" style="width:100%; height:100%; min-width: 400px">
+        <div  id="canvas" style="width:100%; height:100%; min-width: 400px; z-index: 1">
 		</div>
 </template>

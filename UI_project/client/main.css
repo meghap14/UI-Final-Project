@@ -71,6 +71,9 @@
         text-align: center;
         height: 100%;
     }
+	#rotate{
+		display: inline-block;
+	}
     
     #menu{
         background: #ddeeff;
@@ -79,18 +82,22 @@
         text-align: center;
         height: 100%;
         border-right: solid #e3eaf2 1px;
-
     }
 
     .options{
+		float: left;
         margin: 8px 0px;
-        width: 50%;
+        width: 150px;
+		z-index: 100;
     }
 
 
     
     .color, .shape{
+		float: right;
         margin: 15px;
+		display: inline-block;
+
     }
 
 
@@ -98,8 +105,11 @@
     .actions{
         margin: 8px 0px;
         height: 130px;
+		float: left;
+		width: 200px;
         list-style-type:none;
         padding:0;
+		display: inline-block;
     }
 
     .actions li {
