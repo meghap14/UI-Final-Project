@@ -19,15 +19,16 @@ Meteor.startup(() => {
 
   Projects = new Mongo.Collection('projects');
 
-  P_Schema = {};
+  /*P_Schema = {};
 
   P_Schema.Projects = new SimpleSchema({
   	username : {type : String},
-  	p_name : {type : String},
-  	project : {type : Object} //contains object array
+  	project_name : {type : String},
+  	project : {type : Array}, 
+    'project.$' : {type : Mesh}
   });
 
-  Projects.attachSchema(P_Schema.Projects);
+  Projects.attachSchema(P_Schema.Projects);*/
 
 });
 
@@ -37,5 +38,13 @@ Meteor.methods({
 	},
 	insert_account : function(username, password) {
 		Accounts.insert({username : username, password : password});
-	}
+	},
+  insert_project : function(username, project_name, project) {
+    if (Projects.find({ username : username, project_name : project_name }).count()) {
+      //remove entry and reinsert
+      console.log("remove and reinsert");
+      Projects.remove({ username : username, project_name : project_name});
+    }
+    Projects.insert({ username : username, project_name : project_name, project : project })
+  }
 });
