@@ -8,6 +8,7 @@
     button{
         margin: 0px 5px;
         width: 100px;
+        font-size: 13px;
     }
 
     body {
@@ -26,6 +27,7 @@
         margin-top: 12px;
         margin-bottom: 12px;
     }
+
     #form-wrapper {
         width: 250px;
         height: 100px;
@@ -53,7 +55,7 @@
     }
 
     header {
-        width: 100%;
+        width: 99%;
         text-align: right;
         padding: 0 .5em .7em;
         margin-bottom: 1em;
@@ -77,9 +79,7 @@
         display: flex;
         text-align: center;
         padding-bottom: 2px;
-        height: 500px;
-        background-color: #ddeeff;
-
+        height: 665px;
     }
 
     #buildtable{
@@ -164,6 +164,9 @@
         border: solid black 1px;
 
 
+    }
+    label{
+        font-size: 20px;
     }
 
     .actions label {
