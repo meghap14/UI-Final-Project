@@ -107,9 +107,18 @@ if (Meteor.isClient) {
 	Template.welcome.events({
 		//clears global value for logged in user, switches back to login screen
 		'click #logout'(event, instance) {
-			LOGGED_IN_USER.set("");
-			SHOW_LOGIN.set(true);
-			SHOW_LANDING.set(true);
+			if (confirm("Are you sure you want to log out without saving?")){
+				var length = objects.length;
+				for (var i = 0; i < length; i++) {
+					scene.remove(objects[i]);
+				}
+				for (var i = 0; i < length; i++) {
+					objects.pop();
+				}
+				LOGGED_IN_USER.set("");
+				SHOW_LOGIN.set(true);
+				SHOW_LANDING.set(true);
+			}
 		},
 		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
@@ -161,12 +170,57 @@ if (Meteor.isClient) {
 						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
 						console.log("Saved project:");
 						console.log(saved_project.project);
-						objects = saved_project.project;
+						var blocks = saved_project.project;
+						var length = blocks.length;
+						for (var i = 0; i < length; ++i) {
+							var geo = blocks[i].geometry;
+							var color = blocks[i].color;
+							var new_block;
+							var build_geo;
+							var build_mesh = new THREE.MeshLambertMaterial({color : color});
+							if (geo == "square") {
+								build_geo = square;
+							}
+							else if (geo == "rectangle") {
+								build_geo = rectangle;
+							}
+							else if (geo == "quarterBlock") {
+								build_geo = quarterBlock;
+							}
+							else if (geo == "wall") {
+								build_geo = wall;
+							}
+							else if (geo == "pyramid") {
+								build_geo = pyramid;
+							}
+							else if (geo == "cylinder") {
+								build_geo = cylinder;
+							}
+							else if (geo == "sphere") {
+								build_geo = sphere;
+							}
+							else if (geo == "tile") {
+								build_geo = tile;
+							}
+							new_block = new THREE.Mesh(build_geo, build_mesh);
+							new_block.position.x = blocks[i].pos[0];
+							new_block.position.y = blocks[i].pos[1];
+							new_block.position.z = blocks[i].pos[2];
+							new_block.rotation.x = blocks[i].rot[0];
+							new_block.rotation.y = blocks[i].rot[1];
+							new_block.rotation.z = blocks[i].rot[2];
+
+							objects.push(new_block);
+							scene.add(new_block);
+							render();
+						}
+
+						/*objects = saved_project.project;
 						for (var i = 0; i < saved_project.project.length; i++) {
 							var saved_object = objects[i];
 							console.log(saved_object);
-							//scene.add(saved_object);
-						}
+							scene.add(saved_object.object);
+						}*/
 
 						SHOW_LANDING.set(false);
 					}
@@ -216,8 +270,7 @@ smallRenderer.shadowMap.enabled = true;
 var objects = []; //array of all objects on map
 
 //cube impl
-var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
-var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
+
 
 
 camera.position.set(100, 100, 200);
@@ -237,13 +290,6 @@ rollOverMesh.name = 'squareMesh';
 rollOverMesh.position.addScalar(10);
 scene.add(rollOverMesh);
 
-var testObj = new THREE.Mesh(globe_geometry, globe_material);
-testObj.position.x = 0;
-	testObj.position.y = 0;
-	testObj.position.z = 0;
-	testObj.name = "testObj";
-	smallScene.name = "smallScene";
-	smallScene.add(testObj);
 
 scene.add(grid);
 var unitBlock = new THREE.BoxGeometry(10, 10, 10);
@@ -283,6 +329,17 @@ face = new THREE.Face3(1, 2, 4);
 halfPyramid.faces.push(face);
 face = new THREE.Face3(2, 4, 5);
 halfPyramid.faces.push(face);
+
+var globe_geometry = square;
+var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
+
+var testObj = new THREE.Mesh(globe_geometry, globe_material);
+testObj.position.x = 0;
+	testObj.position.y = 0;
+	testObj.position.z = 0;
+	testObj.name = "testObj";
+	smallScene.name = "smallScene";
+	smallScene.add(testObj);
 
 var geometry = new THREE.PlaneBufferGeometry(200, 200);
 geometry.rotateX(- Math.PI / 2);
@@ -395,11 +452,52 @@ Template.interface.events({
 
 		console.log("objects:");
 		console.log(objects);
-		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
-		console.log("objects:");
-		console.log(objects);
+
+		var project = [];
+		var length = objects.length;
+		for (var i = 0; i < length; ++i) {
+			var geometry = "";
+			if (objects[i].geometry == square) {
+				geometry = "square";
+			}
+			else if (objects[i].geometry == rectangle) {
+				geometry = "rectangle";
+			}
+			else if (objects[i].geometry == quarterBlock) {
+				geometry = "quarterBlock";
+			}
+			else if (objects[i].geometry == wall) {
+				geometry = "wall";
+			}
+			else if (objects[i].geometry == pyramid) {
+				geometry = "pyramid";
+			}
+			else if (objects[i].geometry == cylinder) {
+				geometry = "cylinder";
+			}
+			else if (objects[i].geometry == sphere) {
+				geometry = "sphere";
+			}
+			else if (objects[i].geometry == tile) {
+				geometry = "tile";
+			}
+			var color = "new THREE.MeshLambertMaterial({ color: 0x40ff8f });";
+			var pos = [objects[i].position.x, objects[i].position.y, objects[i].position.z];
+			var rot = [objects[i].rotation.x, objects[i].rotation.y, objects[i].rotation.z];
+			var object = {
+				"geometry" : geometry,
+				"color" : color,
+				"pos" : pos,
+				"rot" : rot
+			}
+			project.push(object);
+		}
+		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project); //project instead of objects
+
+
+		console.log("project:");
+		console.log(project);
 		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
-		//scene.add(objects);
 		render();
 		SHOW_LANDING.set(true);
 	},

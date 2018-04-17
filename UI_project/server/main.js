@@ -24,10 +24,16 @@ Meteor.startup(() => {
   P_Schema = {};
 
   P_Schema.Projects = new SimpleSchema({
-  	username : {type : String},
-  	project_name : {type : String},
-  	project : {type : Array}, 
-    'project.$' : {type : THREE.Mesh}
+    username : {type : String},
+    project_name : {type : String},
+    project : {type : Array}, 
+    'project.$' : {type : Object},
+    'project.$.geometry' : {type : String},
+    'project.$.color' : {type : String},
+    'project.$.pos' : {type : Array},
+    'project.$.pos.$' : {type : Number},
+    'project.$.rot' : {type : Array},
+    'project.$.rot.$' : {type : Number}
   });
 
   Projects.attachSchema(P_Schema.Projects);
@@ -42,11 +48,12 @@ Meteor.methods({
 		Accounts.insert({username : username, password : password});
 	},
   insert_project : function(username, project_name, project) {
+    console.log(project);
     if (Projects.find({ username : username, project_name : project_name }).count()) {
       //remove entry and reinsert
       console.log("remove and reinsert");
       Projects.remove({ username : username, project_name : project_name});
     }
-    Projects.insert({ username : username, project_name : project_name, project : project })
+    Projects.insert({ username : username, project_name : project_name, project : project });
   }
 });
