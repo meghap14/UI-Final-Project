@@ -6,7 +6,14 @@ Meteor.startup(() => {
   // code to run on server at startup
 
   var THREE = require('three');
-
+  
+  /*code for getting textures from public folder*/
+  var fs = Npm.require('fs');
+  var files = fs.readdirSync('../web.browser/app/textures');
+  files.forEach(function(file) {
+	  console.log(file);
+  })
+  
   //creates server side Accounts database (so info persists on refresh)
   Accounts = new Mongo.Collection('accounts');
 
