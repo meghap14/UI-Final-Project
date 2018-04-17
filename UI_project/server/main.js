@@ -19,6 +19,7 @@ Meteor.startup(() => {
 
   A_Schema = {};
 
+  //sets schema for Accounts database
   A_Schema.Accounts = new SimpleSchema({
   	username : {type: String},
   	password : {type: String}
@@ -26,10 +27,12 @@ Meteor.startup(() => {
 
   Accounts.attachSchema(A_Schema.Accounts);
 
+  //creates server side Projects database
   Projects = new Mongo.Collection('projects');
 
   P_Schema = {};
 
+  //sets schema for Projects database
   P_Schema.Projects = new SimpleSchema({
     username : {type : String},
     project_name : {type : String},
@@ -55,11 +58,11 @@ Meteor.methods({
 		Accounts.insert({username : username, password : password});
 	},
   insert_project : function(username, project_name, project) {
-    console.log(project);
+    //checks if project already exists and if so removed it
     if (Projects.find({ username : username, project_name : project_name }).count()) {
-      //remove entry and reinsert
       Projects.remove({ username : username, project_name : project_name});
     }
+    //inserts project into database
     Projects.insert({ username : username, project_name : project_name, project : project });
   }
 });
