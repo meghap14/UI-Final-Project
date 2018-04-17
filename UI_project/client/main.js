@@ -119,6 +119,7 @@ if (Meteor.isClient) {
 				SHOW_LOGIN.set(true);
 				SHOW_LANDING.set(true);
 			}
+			render();
 		},
 		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
@@ -363,14 +364,13 @@ smallScene.add(smallLight);
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
 
-var texture = new THREE.TextureLoader();
-//similar to $(document).ready;
+var loader = new THREE.TextureLoader();
+var path = 'textures/emerald_block.png';
 animate();
 Template.interface.onRendered(function () {
 	
 	console.log(testObj);
 	console.log(smallScene);
-	texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -828,15 +828,11 @@ function setRollOverFromBlock(block){
 
 function addBlock(){
 	cur_geo = globe_geometry;
-	console.log(texture.path);
 	var cur_color;
-	if (!isMoving){
-       cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
-	}
-	else cur_color = globe_material;
-    block = new THREE.Mesh(cur_geo, cur_color);
-    var name = rollOverMesh.name.slice(0, 6);
-    block.name = name;
+	if (isMoving){
+    cur_color = globe_material;
+	  block = new THREE.Mesh(cur_geo, cur_color);
+    block.name = path;
     block.castShadow = true;
     block.receiveShadow = true;
 	
@@ -855,6 +851,32 @@ function addBlock(){
 	block.rotation.y = rollOverMesh.rotation.y;
 	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
     objects.push(block);
+	}
+	else {
+	loader.load(path, function(texture){
+	cur_color = new THREE.MeshLambertMaterial({ map: texture });
+    block = new THREE.Mesh(cur_geo, cur_color);
+    block.name = path;
+    block.castShadow = true;
+    block.receiveShadow = true;
+	
+	//set position of block from position vector
+	block.position.setX(rollOverMesh.position.x);
+	block.position.setY(rollOverMesh.position.y);
+	block.position.setZ(rollOverMesh.position.z);
+	block.translateX(-10);
+	block.translateY(-10);
+	block.translateZ(-10);
+	
+	//Make block motion discrete, not continuous
+    block.position.floor().addScalar(10);
+    scene.add(block);
+	block.rotation.x = rollOverMesh.rotation.x;
+	block.rotation.y = rollOverMesh.rotation.y;
+	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
+    objects.push(block);
+	});
+	}
 }	
 
 function rotateMesh(){
