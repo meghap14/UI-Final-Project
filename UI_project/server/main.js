@@ -51,7 +51,6 @@ Meteor.methods({
     console.log(project);
     if (Projects.find({ username : username, project_name : project_name }).count()) {
       //remove entry and reinsert
-      console.log("remove and reinsert");
       Projects.remove({ username : username, project_name : project_name});
     }
     Projects.insert({ username : username, project_name : project_name, project : project });
