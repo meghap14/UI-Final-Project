@@ -237,7 +237,7 @@
     #blockoptions{
         height: 50px;
         width: 999px;
-        position: fixed;
+        position: absolute;
         left: 200px;
         top: 139px;
     }
