@@ -8,17 +8,20 @@
     body {
         position: relative;
         /* display: flex; */
-        /* background-image: url("p"); */
+         background: url(/skybackground.jpg) no-repeat center center fixed #e3eaf2; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
         /* background-color:#e3eaf2; */
 
     }
 
-
     #form-wrapper {
         width: 250px;
         height: 100px;
-        padding: 10px;
-        background: #eee;
+        padding: 20px;
+        background-color: rgba(227, 234, 242, 0.8);
         position: fixed;
         margin: auto;
         top: 50%;
@@ -26,6 +29,7 @@
         margin-top: -50px;
         margin-left: -125px;
         text-align: center;
+        border-radius: 5px;
 
     }
 
@@ -122,8 +126,6 @@
 		display: inline-block;
 
     }
-
-
 
     .actions{
         margin: 8px 0px;
