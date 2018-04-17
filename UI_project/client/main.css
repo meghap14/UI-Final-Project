@@ -5,6 +5,11 @@
         font-family: "Impact","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
 
+    button{
+        margin: 0px 5px;
+        width: 100px;
+    }
+
     body {
         position: relative;
         /* display: flex; */
@@ -16,7 +21,11 @@
         /* background-color:#e3eaf2; */
 
     }
-
+    h1{
+        font-size: 62px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+    }
     #form-wrapper {
         width: 250px;
         height: 100px;
@@ -40,14 +49,13 @@
 
     /* HEADER */
     .bottomborder{
-        border-bottom: 1px solid #eee;
+        border-bottom: solid 1px #E5E5E5;
     }
 
     header {
         width: 100%;
         text-align: right;
         padding: 0 .5em .7em;
-        border-bottom: solid 1px #E5E5E5;
         margin-bottom: 1em;
         min-width: 1000px;
     }
@@ -105,6 +113,12 @@
         -moz-border-radius: 3px;
         border-radius: 5px;
         border: solid black 1px;
+        background: transparent;
+        /* 
+        if we wanted to add color
+        background-color: rgba(227, 234, 242, 0.8); */
+
+
 	}
 
     .options{

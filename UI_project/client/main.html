@@ -101,6 +101,9 @@
 
 <!-- login/create account box -->
 <template name="login">
+    <header style=" text-align: center;" >
+            <h1 style="margin:60px 0px; font-size:140px;">8-bit Builder!</h1>
+    </header>
     <div id="form-wrapper">
         <label for="username">Username:</label>
         <input type="text" id="username"><br><br>
@@ -115,7 +118,7 @@
 
 <template name="project">
     <div id="form-wrapper">
-        <br><span>Work on:</span>
+        <span>Work on:</span>
         <select id="project_status">
             <option></option>
             <option>New Project</option>
@@ -129,7 +132,7 @@
 
 <!-- if logged in -->
 <template name ="welcome">
-<header class="page-header bottomborders headerrow">
+<header class="page-header bottomborder headerrow">
 
     <div class="headercolumn">
         <h1>8-bit Builder!</h1>        
