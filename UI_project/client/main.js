@@ -1,7 +1,7 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
-//import './main.html';
+import './main.html';
 //import THREE from 'three';
 var THREE = require('three');
 var OrbitControls = require('three-orbit-controls')(THREE);
@@ -107,8 +107,18 @@ if (Meteor.isClient) {
 	Template.welcome.events({
 		//clears global value for logged in user, switches back to login screen
 		'click #logout'(event, instance) {
+			if (confirm("Do yyou want to logout without saving?")) {
+				var length = objects.length;
+				for (var i = 0; i < length; i++) {
+					scene.remove(objects[i]);
+				}
+				for (var i = 0; i < length; i++) {
+					objects.pop();
+				}
+			}
 			LOGGED_IN_USER.set("");
 			SHOW_LOGIN.set(true);
+			SHOW_LANDING.set(true);
 		},
 		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
@@ -120,6 +130,7 @@ if (Meteor.isClient) {
 				//clears global value for logged in user, switches back to login screen
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
+				SHOW_LANDING.set(true);
 			}
 		}
 	});
@@ -155,14 +166,26 @@ if (Meteor.isClient) {
 					}
 					else {
 						//set objects to be saved objects from database
+
+						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
+						console.log("Saved project:");
+						console.log(saved_project.project);
+						objects = saved_project.project;
+						for (var i = 0; i < saved_project.project.length; i++) {
+							scene.add(objects[i]);
+						}
+
+						SHOW_LANDING.set(false);
 					}
 				}
 				else {
 					if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : instance.project_name.get() }).count()) {
 						alert("Project already exists");
 					}
+					else {
+						SHOW_LANDING.set(false);
+					}
 				}
-				SHOW_LANDING.set(false);
 			}
 		}
 
@@ -193,7 +216,7 @@ var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.shadowMap.enabled = true;
 renderer.setClearColor(0xddeeff);
 
-var smallRenderer = new THREE.WebGLRenderer({ antialias: true});
+var smallRenderer = new THREE.WebGLRenderer();
 smallRenderer.shadowMap.enabled = true;
 smallRenderer.setClearColor(0xddeeff);
 
@@ -203,7 +226,7 @@ var objects = []; //array of all objects on map
 
 //cube impl
 var globe_geometry = new THREE.BoxGeometry(20, 20, 20);
-var globe_material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
 
 
 camera.position.set(100, 100, 200);
@@ -295,12 +318,11 @@ var controls = new OrbitControls(camera, renderer.domElement);
 var texture = new THREE.TextureLoader();
 //similar to $(document).ready;
 animate();
-
 Template.interface.onRendered(function () {
 	
 	console.log(testObj);
 	console.log(smallScene);
-	texture.load('/textures/stone.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
+	texture.load('textures/brick.png', function() {render(); console.log("load successful")}, undefined,function(){ console.log("load unsuccessful")}); //FIXME
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -315,7 +337,6 @@ Template.interface.onRendered(function () {
     window.keydown(arrowKeys, false);
     window.addEventListener('resize', onWindowResize, false);
     render();
-		
 
 });
 
@@ -355,9 +376,13 @@ Template.interface.events({
 		globe_material = new THREE.MeshLambertMaterial({color : dropColor});
 		console.log(globe_material);
 		console.log(globe_geometry);
+		position = testObj.position;
 		smallScene.remove(testObj);
 		testObj = new THREE.Mesh(globe_geometry, globe_material);
 		smallScene.add(testObj);
+		testObj.position.setX(position.getComponent(0));
+		testObj.position.setY(position.getComponent(1));
+		testObj.position.setZ(position.getComponent(2));
 		render();
 	},
 	
@@ -366,19 +391,35 @@ Template.interface.events({
 		SwitchGeo(dropGeo);
 		console.log(globe_material);
 		console.log(globe_geometry);
+		position = testObj.position;
 		smallScene.remove(testObj);
 		testObj = new THREE.Mesh(globe_geometry, globe_material);
 		smallScene.add(testObj);
+		testObj.position.setX(position.getComponent(0));
+		testObj.position.setY(position.getComponent(1));
+		testObj.position.setZ(position.getComponent(2));
 		render();
 	},
 	'click #save'(event, instance) {
-		var project = {"objects" : objects};
-		if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
-			//remove entry and reinsert
+		console.log("stored object");
+		console.log(objects);
+		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
+		render();
+		SHOW_LANDING.set(true);
+	},
+	'click #clear'(event, instance) {
+		var length = objects.length;
+		for (var i = 0; i < length; i++) {
+			console.log("remove");
+			scene.remove(objects[i]);
+			console.log(objects);
 		}
-		else {
-			Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
+		for (var i = 0; i < length; i++) {
+			console.log("pop");
+			objects.pop()
+			console.log(objects);
 		}
+		render();
 	}
 });
 
@@ -389,12 +430,14 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     var intersects = raycaster.intersectObjects(objects);
+                    //console.log(intersects);
                     if (intersects.length > 0) {
                         var intersect = intersects[0];
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
                         rollOverMesh.position.floor().addScalar(10);
                         if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
 						if (dropGeo == "tile") rollOverMesh.translateY(-9);
+						//if (rollOverGeo == wall) rollOverMesh.translateX(-2);
                     }
                     render();
     }
@@ -448,19 +491,23 @@ function arrowKeys(event) {
 					}
                     if (event.keyCode == 37) {  //left arrow
                         rollOverMesh.position.x -= moveDistance;
-						rollOverMesh.position.floor();
+						rollOverMesh.position.floor()
+						//keyCollision();
                     }
                     else if (event.keyCode == 38) { //up arrow
                        rollOverMesh.position.z -= moveDistance;
 						rollOverMesh.position.floor()
+						//keyCollision();
                     }
                     else if (event.keyCode == 39) { //right arrow
                         rollOverMesh.position.x += moveDistance;
 						rollOverMesh.position.floor()
+						//keyCollision();
                     }
                     else if (event.keyCode == 40) { //down arrow
                         rollOverMesh.position.z += moveDistance;
 						rollOverMesh.position.floor()
+						//keyCollision();
 
                     }
 					else if (event.keyCode == 90){
@@ -686,8 +733,7 @@ function addBlock(){
 	console.log(texture.path);
 	var cur_color;
 	if (!isMoving){
-       cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
-	   //cur_color = new THREE.MeshLambertMaterial({map: texture});
+       cur_color = new THREE.MeshBasicMaterial({ color: dropColor });
 	}
 	else cur_color = globe_material;
     block = new THREE.Mesh(cur_geo, cur_color);
@@ -715,7 +761,6 @@ function addBlock(){
 
 function rotateMesh(){
 	if (dropGeo != "tile") rollOverMesh.rotateY(Math.PI / 2);
-	render();
 }
 
 function onWindowResize() {
@@ -735,4 +780,3 @@ function animate() {
 	testObj.rotation.y += 0.01;
 	smallRenderer.render( smallScene, smallCamera );
 	}
-

@@ -1,5 +1,5 @@
 <head>
-  <title>Lego Builder</title>
+  <title>8-bit Builder</title>
 </head>
 
 <body>
@@ -15,19 +15,8 @@
 </template>
 
 <template name="main_page">
-    <header class="page-header bottomborders headerrow">
-    <div class="headercolumn">
-    <h1>Lego Builder!</h1>
-    
-    </div>
-    <div class="headercolumn">
         {{> welcome}}  
-    </div>
-    </header>
-    <div class="loggedin">
-             {{> interface}}
-    </div>
-
+        {{> interface}}
 </template>
 
 <!-- main content -->
@@ -108,14 +97,13 @@
     {{ else }}
         {{> welcome}}
     {{ /if }}
-    
 </template>
 
 <!-- login/create account box -->
 <template name="login">
     <div id="form-wrapper">
         <label for="username">Username:</label>
-        <input type="text" id="username"><br>
+        <input type="text" id="username"><br><br>
         
         <label for="password">Password:</label>
         <input type="password" id="password"><br><br>
@@ -123,29 +111,36 @@
         <button id="create">Create Account</button>
         <button id="login">Log In</button>
     </div>
-
 </template>
 
 <template name="project">
-    <br><br><br><br><span>Work on:</span>
-    <select id="project_status">
-        <option></option>
-        <option>New Project</option>
-        <option>Saved Project</option>
-    </select>
-    <br><br><span>Project name:</span>
-    <input type="text" id="project_name" />
-    <button id="go">Go</button>
-    
+    <div id="form-wrapper">
+        <br><span>Work on:</span>
+        <select id="project_status">
+            <option></option>
+            <option>New Project</option>
+            <option>Saved Project</option>
+        </select>
+        <br><br><span>Project name:</span>
+        <input type="text" id="project_name" />
+        <button id="go">Go</button>
+    </div>
 </template>
 
 <!-- if logged in -->
 <template name ="welcome">
-<div>
-    <p>Welcome {{name}}!</p>
-    <button id="logout">Log Out</button>
-    <button id="deleteAccount">Delete Account</button>    
-</div>
+<header class="page-header bottomborders headerrow">
+
+    <div class="headercolumn">
+        <h1>8-bit Builder!</h1>        
+    </div>
+
+    <div class="headercolumn">
+        <p>Welcome {{name}}!</p>
+        <button id="logout">Log Out</button>
+        <button id="deleteAccount">Delete Account</button>   
+    </div>
+</header>
 {{ #if show_landing}}
     {{> project}}
 {{ /if }}
@@ -153,6 +148,6 @@
 
 
 <template name="table">
-        <div  id="canvas" style="width:100%; height:100%; min-width: 100px; z-index: 1;">
+        <div  id="canvas" style="width:100%; height:100%; min-width: 100px;">
 		</div>
 </template>
