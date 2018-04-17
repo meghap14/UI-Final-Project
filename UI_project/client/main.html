@@ -2,13 +2,13 @@
   <title>8-bit Builder</title>
   <!-- if we wanted to add a icon to our tab -->
 <!-- <link rel="icon" type="image/png" href="/path/image.png" /> -->
-
 </head>
 
 <body>
     {{> container}}
 </body>
 
+<!-- if not logged in show landing, else main page -->
 <template name="container">
     {{ #if show_landing }}
         {{> landing}}
@@ -17,84 +17,14 @@
     {{ /if }}
 </template>
 
+<!-- wlecom header, and main interface -->
 <template name="main_page">
         {{> welcome}}  
         {{> interface}}
 </template>
 
-<!-- main content -->
-<template name="interface">
-<!-- display blocks here and save build -->
-<div class="row">
-    
-    <div id="menu">
-                <br/>
-            <ul class="actions">
-                <li>
-                    <!-- potentialy make these look like other buttons HELP fix me -->
-                    <input type="radio" id='add' name='mode' value='add' checked/>
-                    <label for="add">Add</label><br/>                    
-                </li>
-                <li>
-                    <input type="radio" id="move" name="mode" value="move"/>
-                    <label for="move">Move</label><br/>
-                </li>
-                <li>
-                    <input type="radio" id="delete" name="mode" value="delete"/>
-                    <label for="delete">Delete</label><br/>
-                </li>
-            </ul>
 
-
-        <br>
-        <div id="blockoptions">
-        <button id="rotate" >Rotate</button>
-        <div class="color">
-        <label>Color:</label>
-		<select id="color">
-            <!--<option value="stone">stone</option>-->
-            <option value="red">red</option>
-            <option value="orange">orange</option>
-            <option value="yellow">yellow</option>
-            <option value="green">green</option>
-            <option value="blue">blue</option>
-            <option value="purple">purple</option>
-            <option value="white">white</option>
-            <option value="black">black</option>
-            <option value="chocolate">brown</option>
-            <option value="gray">gray</option>
-        </select>
-        </div>
-        <div class="shape">
-        <label>Shape:</label>
-        <select id="geo">
-            <option value="square">square</option>
-            <option value="rectangle">rectangle</option>
-            <option value="quarterBlock">quarter-block</option>
-            <option value="wall">wall</option>
-            <option value="cylinder">cylinder</option>
-            <option value="pyramid">pyramid</option>
-            <option value="half pyramid">half pyramid</option>
-            <option value="sphere">sphere</option>
-            <option value="tile">tile</option>
-        </select>
-        </div>
-        </div>
-
-        <div id="smallScene"></div>
-        <div id="dboptions">
-            <button class="options" id="save">Save</button>
-            <br> <br> <br>
-            <button class="options" id="clear">Clear</button>           
-        </div>
-
-        
-         {{> table}}
-    </div>
-</div>
-
-</template>
-
+<!-- shows login page if not logged in, else welcom header with project options -->
 <template name="landing">
     {{ #if show_login}}
         {{> login}}
@@ -106,37 +36,23 @@
 <!-- login/create account box -->
 <template name="login">
     <header style=" text-align: center;" >
-            <h1 style="margin:90px 0px; font-size:75px;">8-bit Builder!</h1>
+            <h1 style="margin:110px 0px; font-size:75px;">8-bit Builder!</h1>
     </header>
     <div id="form-wrapper">
         <label for="username">Username:</label>
         <input type="text" id="username"><br><br>
         
         <label for="password">Password:</label>
-        <input type="password" id="password"><br><br>
+        <input type="password" id="password"><br><br><br>
         
-        <button id="create">Create Account</button>
+        <button id="create"><span>Create Account</span></button>
         <button id="login">Log In</button>
     </div>
 </template>
 
-<template name="project">
-    <div id="form-wrapper">
-        <br>
-        <label for="project_status">Work on:</label>
-        <select id="project_status">
-            <option></option>
-            <option>New Project</option>
-            <option>Saved Project</option>
-        </select>
-        <br><br>
-        <label for="project_name">Project name:</label>
-        <input type="text" id="project_name" /><br> <br>
-        <button id="go">Go</button>
-    </div>
-</template>
 
-<!-- if logged in -->
+
+<!-- this is the welcome header if also shows project options -->
 <template name ="welcome">
 <header class="page-header bottomborder headerrow">
 
@@ -144,7 +60,7 @@
         <h1>8-bit Builder!</h1>        
     </div>
 
-    <div class="headercolumn">
+    <div class="headercolumn welcome">
         <p>Welcome {{name}}!</p>
         <button id="logout">Log Out</button>
         <button id="deleteAccount">Delete Account</button>   
@@ -155,8 +71,105 @@
 {{ /if }}
 </template>
 
+<!-- project options -->
+<template name="project">
+    <div id="form-wrapper">
+        <br>
+        <label for="project_status">Work on:</label>
+        <select id="project_status">
+            <option></option>
+            <option>New Project</option>
+            <option>Saved Project</option>
+        </select>
+        <br>
+        <br>
+        <label for="project_name">Project name:</label>
+        <input type="text" id="project_name" />
+        <br>
+        <br>
+        <button id="go">Go</button>
+    </div>
+</template>
 
+
+<!-- this is where buld table will render -->
 <template name="table">
         <div  id="canvas" style="width:100%; height:100%; min-width: 100px;">
 		</div>
+</template>
+
+<!-- main content -->
+<template name="interface">
+    <div class="row">
+
+        <div id="menu">
+            <br/>
+            <ul class="actions">
+                <li>
+                    <input type="radio" id='add' name='mode' value='add' checked/>
+                    <label for="add">Add</label>
+                    <br/>
+                </li>
+                <li>
+                    <input type="radio" id="move" name="mode" value="move" />
+                    <label for="move">Move</label>
+                    <br/>
+                </li>
+                <li>
+                    <input type="radio" id="delete" name="mode" value="delete" />
+                    <label for="delete">Delete</label>
+                    <br/>
+                </li>
+            </ul>
+
+
+            <br>
+            <div id="blockoptions">
+                <button id="rotate">Rotate</button>
+                <div class="color">
+                    <label>Color:</label>
+                    <select id="color">
+                        <!--<option value="stone">stone</option>-->
+                        <option value="red">red</option>
+                        <option value="orange">orange</option>
+                        <option value="yellow">yellow</option>
+                        <option value="green">green</option>
+                        <option value="blue">blue</option>
+                        <option value="purple">purple</option>
+                        <option value="white">white</option>
+                        <option value="black">black</option>
+                        <option value="chocolate">brown</option>
+                        <option value="gray">gray</option>
+                    </select>
+                </div>
+                <div class="shape">
+                    <label>Shape:</label>
+                    <select id="geo">
+                        <option value="square">square</option>
+                        <option value="rectangle">rectangle</option>
+                        <option value="quarterBlock">quarter-block</option>
+                        <option value="wall">wall</option>
+                        <option value="cylinder">cylinder</option>
+                        <option value="pyramid">pyramid</option>
+                        <option value="half pyramid">half pyramid</option>
+                        <option value="sphere">sphere</option>
+                        <option value="tile">tile</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="smallScene"></div>
+            <div id="dboptions">
+                <button class="options" id="save">Save</button>
+                <br>
+                <br>
+                <br>
+                <button class="options" id="clear">Clear</button>
+            </div>
+
+
+            {{> table}}
+        </div>
+    </div>
+
 </template>
