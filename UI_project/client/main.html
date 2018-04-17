@@ -15,19 +15,12 @@
 </template>
 
 <template name="main_page">
-    <header class="page-header bottomborders headerrow">
-    <div class="headercolumn">
-    <h1>Lego Builder!</h1>
-    
-    </div>
-    <div class="headercolumn">
+
         {{> welcome}}  
-    </div>
-    </header>
+
     <div class="loggedin">
              {{> interface}}
     </div>
-
 </template>
 
 <!-- main content -->
@@ -127,25 +120,34 @@
 </template>
 
 <template name="project">
-    <br><br><br><br><span>Work on:</span>
-    <select id="project_status">
-        <option></option>
-        <option>New Project</option>
-        <option>Saved Project</option>
-    </select>
-    <br><br><span>Project name:</span>
-    <input type="text" id="project_name" />
-    <button id="go">Go</button>
+    <div id="form-wrapper">
+        <br><span>Work on:</span>
+        <select id="project_status">
+            <option></option>
+            <option>New Project</option>
+            <option>Saved Project</option>
+        </select>
+        <br><br><span>Project name:</span>
+        <input type="text" id="project_name" />
+        <button id="go">Go</button>
+    </div>
     
 </template>
 
 <!-- if logged in -->
 <template name ="welcome">
-<div>
-    <p>Welcome {{name}}!</p>
-    <button id="logout">Log Out</button>
-    <button id="deleteAccount">Delete Account</button>    
-</div>
+<header class="page-header bottomborders headerrow">
+
+    <div class="headercolumn">
+        <h1>Lego Builder!</h1>        
+    </div>
+
+    <div class="headercolumn">
+        <p>Welcome {{name}}!</p>
+        <button id="logout">Log Out</button>
+        <button id="deleteAccount">Delete Account</button>   
+    </div>
+</header>
 {{ #if show_landing}}
     {{> project}}
 {{ /if }}
