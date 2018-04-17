@@ -107,15 +107,6 @@ if (Meteor.isClient) {
 	Template.welcome.events({
 		//clears global value for logged in user, switches back to login screen
 		'click #logout'(event, instance) {
-			if (confirm("Do yyou want to logout without saving?")) {
-				var length = objects.length;
-				for (var i = 0; i < length; i++) {
-					scene.remove(objects[i]);
-				}
-				for (var i = 0; i < length; i++) {
-					objects.pop();
-				}
-			}
 			LOGGED_IN_USER.set("");
 			SHOW_LOGIN.set(true);
 			SHOW_LANDING.set(true);
@@ -172,7 +163,9 @@ if (Meteor.isClient) {
 						console.log(saved_project.project);
 						objects = saved_project.project;
 						for (var i = 0; i < saved_project.project.length; i++) {
-							scene.add(objects[i]);
+							var saved_object = objects[i];
+							console.log(saved_object);
+							//scene.add(saved_object);
 						}
 
 						SHOW_LANDING.set(false);
@@ -212,13 +205,11 @@ var smallScene = new THREE.Scene(); //smaller box that shows currently selected 
 var camera = new THREE.PerspectiveCamera(45, $("#canvas").width() / $("#canvas").height(), 1, 1000);
 var smallCamera = new THREE.PerspectiveCamera(45, 1, 1, 100);
 
-var renderer = new THREE.WebGLRenderer({ antialias: true });
+var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.shadowMap.enabled = true;
-renderer.setClearColor(0xddeeff);
 
-var smallRenderer = new THREE.WebGLRenderer();
+var smallRenderer = new THREE.WebGLRenderer({anti: true, alpha:true});
 smallRenderer.shadowMap.enabled = true;
-smallRenderer.setClearColor(0xddeeff);
 
 
 //THIS IS WHAT WE LOAD AND STORE
@@ -299,7 +290,7 @@ plane = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ visible: true }
 plane.receiveShadow = true;
 plane.name = "plane";
 scene.add(plane);
-objects.push(plane);
+//objects.push(plane);
 
 var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
@@ -401,9 +392,14 @@ Template.interface.events({
 		render();
 	},
 	'click #save'(event, instance) {
-		console.log("stored object");
+
+		console.log("objects:");
 		console.log(objects);
 		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), objects);
+		console.log("objects:");
+		console.log(objects);
+		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
+		//scene.add(objects);
 		render();
 		SHOW_LANDING.set(true);
 	},
@@ -429,7 +425,9 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
 					var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
-                    var intersects = raycaster.intersectObjects(objects);
+                    objects.push(plane);
+					var intersects = raycaster.intersectObjects(objects);
+					objects.splice(objects.indexOf(plane),1);
                     //console.log(intersects);
                     if (intersects.length > 0) {
                         var intersect = intersects[0];
@@ -448,7 +446,9 @@ function onDocumentMouseDown(event) {
                     var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
-                    var intersects = raycaster.intersectObjects(objects);
+                    objects.push(plane);
+					var intersects = raycaster.intersectObjects(objects);
+					objects.splice(objects.indexOf(plane),1);
                     console.log(intersects);
                     if (intersects.length > 0) {
                         var intersect = intersects[0];
@@ -733,7 +733,7 @@ function addBlock(){
 	console.log(texture.path);
 	var cur_color;
 	if (!isMoving){
-       cur_color = new THREE.MeshBasicMaterial({ color: dropColor });
+       cur_color = new THREE.MeshLambertMaterial({ color: dropColor });
 	}
 	else cur_color = globe_material;
     block = new THREE.Mesh(cur_geo, cur_color);
@@ -761,6 +761,7 @@ function addBlock(){
 
 function rotateMesh(){
 	if (dropGeo != "tile") rollOverMesh.rotateY(Math.PI / 2);
+	render();
 }
 
 function onWindowResize() {
