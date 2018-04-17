@@ -1,5 +1,8 @@
 <head>
   <title>8-bit Builder</title>
+  <!-- if we wanted to add a icon to our tab -->
+<!-- <link rel="icon" type="image/png" href="/path/image.png" /> -->
+
 </head>
 
 <body>
@@ -23,7 +26,7 @@
 <template name="interface">
 <!-- display blocks here and save build -->
 <div class="row">
-
+    
     <div id="menu">
                 <br/>
             <ul class="actions">
@@ -43,6 +46,8 @@
 
 
         <br>
+        <div id="blockoptions">
+        <button id="rotate" >Rotate</button>
         <div class="color">
         <label>Color:</label>
 		<select id="color">
@@ -73,20 +78,17 @@
             <option value="tile">tile</option>
         </select>
         </div>
-		<br>
-        <button id="rotate">Rotate</button>
-		<br>
+        </div>
+
         <div id="smallScene"></div>
+        <div id="dboptions">
+            <button class="options" id="save">Save</button>
+            <br> <br>
+            <button class="options" id="clear">Clear</button>           
+        </div>
+
+        
          {{> table}}
-
-        <button class="options" id="save">Save</button>
-        <br>
-        <br>
-        <button class="options" id="clear">Clear</button>
-    <!-- </div>
-    display build here 
-    <div id="buildtable">-->
-
     </div>
 </div>
 
@@ -103,7 +105,7 @@
 <!-- login/create account box -->
 <template name="login">
     <header style=" text-align: center;" >
-            <h1 style="margin:60px 0px; font-size:140px;">8-bit Builder!</h1>
+            <h1 style="margin:90px 0px; font-size:75px;">8-bit Builder!</h1>
     </header>
     <div id="form-wrapper">
         <label for="username">Username:</label>
@@ -119,13 +121,14 @@
 
 <template name="project">
     <div id="form-wrapper">
-        <span>Work on:</span>
+        <label for="project_status">Work on:</label>
         <select id="project_status">
             <option></option>
             <option>New Project</option>
             <option>Saved Project</option>
         </select>
-        <br><br><span>Project name:</span>
+        <br><br>
+        <label for="project_name">Project name:</label>
         <input type="text" id="project_name" /><br> <br>
         <button id="go">Go</button>
     </div>

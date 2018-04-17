@@ -1,14 +1,23 @@
 /* CSS declarations go here */
 
+    @font-face {
+        font-family: eightbit;
+        src: url(8-BITWONDER.TTF);
+    }
+
     *{
 
-        font-family: "Impact","Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-family: "eightbit","Impact","Helvetica Neue",Helvetica,Arial,sans-serif;
     }
 
     button{
-        margin: 0px 5px;
-        width: 100px;
-        font-size: 13px;
+        margin: 0px 3px 0px 0px;
+        width: 110px;
+        font-size: 12px;
+        border-radius: 5px;
+        /* height: 50px; HELP FIX ME*/
+        padding: 0px 0px;
+
     }
 
     body {
@@ -23,14 +32,14 @@
 
     }
     h1{
-        font-size: 62px;
+        font-size: 45px;
         margin-top: 12px;
         margin-bottom: 12px;
     }
 
     #form-wrapper {
         width: 250px;
-        height: 100px;
+        height: 180px;
         padding: 20px;
         background-color: rgba(227, 234, 242, 0.8);
         position: fixed;
@@ -41,7 +50,6 @@
         margin-left: -125px;
         text-align: center;
         border-radius: 5px;
-
     }
 
     .page-header {
@@ -81,6 +89,7 @@
         padding-bottom: 2px;
         height: 665px;
     }
+ 
 
     #buildtable{
         background: #ddeeff;
@@ -90,7 +99,10 @@
         height: 100%;
     }
 	#rotate{
-		display: inline-block;
+        display: inline-block;
+        font-size: 20px; 
+        width: 170px; 
+        height:30px;
 	}
 
     #menu{
@@ -98,7 +110,6 @@
         min-width: 200px;
         text-align: center;
         height: 100%;
-        border-right: solid #e3eaf2 1px;
     }
 
 	#smallScene{
@@ -162,6 +173,7 @@
         -moz-border-radius: 3px;
         border-radius: 5px;
         border: solid black 1px;
+        background-color: rgba(227, 234, 242, 0.3);
 
 
     }
@@ -169,6 +181,10 @@
         font-size: 20px;
     }
 
+    input{
+        width: 200px;
+
+    }
     .actions label {
         display:block;
         position:absolute;
@@ -200,3 +216,23 @@
 
 
 
+    #dboptions{
+        float: left;
+		top: 510px;
+		left: 0px;
+		background-color: red;
+		position: absolute;
+        background: transparent;
+    }
+
+
+
+
+    #blockoptions{
+        border: green solid 1px;
+        height: 50px;
+        width: 999px;
+        position: fixed;
+        left: 200px;
+        top: 139px;
+    }
