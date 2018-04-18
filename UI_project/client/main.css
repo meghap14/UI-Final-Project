@@ -221,21 +221,21 @@ label{
 }
 
 #rotate{
-    display: inline-block;
+	position: relative;
+    display: inline;
     font-size: 20px; 
     width: 170px; 
     height:30px;
     margin-top: 10px;
-    margin-left: 216px;
 }
 
 .color, .shape{
+	position: relative;
     float: right;
     margin: 15px;
-    display: inline-block;
+    display: inline;
 
 }
 .tile{
 	display: none;
 }
-
