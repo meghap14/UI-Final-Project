@@ -382,8 +382,8 @@ Template.interface.onRendered(function () {
 	$('#smallScene').append(smallRenderer.domElement);
 	
     //javascript event listeners
-    $('#canvas').mousemove(onDocumentMouseMove);
-    $('#canvas').mousedown(onDocumentMouseDown);
+    $('.row').mousemove(onDocumentMouseMove);
+    $('.row').mousedown(onDocumentMouseDown);
 	controls.addEventListener('change', function () { renderer.render(scene, camera); });
     window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('resize', onWindowResize, false);
@@ -526,9 +526,8 @@ Template.interface.events({
 
 //Javascript functions
 function onDocumentMouseMove(event) {  //taken from threejs.org
-                
 					var offset = $(this).offset();
-                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
+                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top * 2.5)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     objects.push(plane);
 					var intersects = raycaster.intersectObjects(objects);
@@ -537,7 +536,8 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                     if (intersects.length > 0 && intersects[0].geometry != tile) {
                         var intersect = intersects[0];
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-                        rollOverMesh.position.floor().addScalar(10);
+                        rollOverMesh.position.divideScalar(2.5).floor().multiplyScalar(2.5);
+						rollOverMesh.position.y += 10;
                         if (rollOverMesh.geometry === unitBlock) rollOverMesh.translateY(-5);
 						if (rollOverMesh.geometry === square) rollOverMesh.translateY(-5);
 						if (rollOverMesh.geometry === floor) rollOverMesh.translateY(-10);
@@ -546,26 +546,10 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
                     render();
     }
 
-function changeTexture(){
-	path = $("#color").val();
-	loader.load(path, function(texture){
-		globe_material = new THREE.MeshLambertMaterial({ map: texture });
-		globe_material.name = path;
-		console.log(globe_material);
-		console.log(globe_geometry);
-		position = testObj.position;
-		smallScene.remove(testObj);
-		testObj = new THREE.Mesh(globe_geometry, globe_material);
-		smallScene.add(testObj);
-		testObj.position.setX(position.getComponent(0));
-		testObj.position.setY(position.getComponent(1));
-		testObj.position.setZ(position.getComponent(2));
-		render();
-	});
-}
+
 	
 function onDocumentMouseDown(event) {
-					event.stopPropagation();
+					//event.stopPropagation();
                     var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
@@ -605,7 +589,7 @@ function onDocumentMouseDown(event) {
     }
 
 function arrowKeys(event) {
-                    event.preventDefault();
+                    if(!SHOW_LOGIN) event.preventDefault();
                     //event.stopPropagation();
 					var d = new Date()
 					var delta = d.getSeconds(); //seconds
@@ -647,6 +631,7 @@ function arrowKeys(event) {
     }
 
 function spaceKey() {
+	if (!SHOW_LOGIN) event.preventDefault();
                         if (mode == "delete") {
                             for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
                                 var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
@@ -763,6 +748,23 @@ function keyCollision(){  //handles collision detection on keystrokes
                 }
 }
 
+function changeTexture(){
+	path = $("#color").val();
+	loader.load(path, function(texture){
+		globe_material = new THREE.MeshLambertMaterial({ map: texture });
+		globe_material.name = path;
+		console.log(globe_material);
+		console.log(globe_geometry);
+		position = testObj.position;
+		smallScene.remove(testObj);
+		testObj = new THREE.Mesh(globe_geometry, globe_material);
+		smallScene.add(testObj);
+		testObj.position.setX(position.getComponent(0));
+		testObj.position.setY(position.getComponent(1));
+		testObj.position.setZ(position.getComponent(2));
+		render();
+	});
+}
 function SwitchGeo(val) {
 	if (mode == "add"){
               if (val == "square") {
