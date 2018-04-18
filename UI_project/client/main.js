@@ -514,41 +514,20 @@ function onDocumentMouseMove(event) {  //taken from threejs.org
 	
 function onDocumentMouseDown(event) {
 					event.stopPropagation();
-                    var offset = $(this).offset();
-                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
-                    raycaster.setFromCamera(mouse, camera);
-                    objects.push(plane);
-					var intersects = raycaster.intersectObjects(objects);
-					objects.splice(objects.indexOf(plane),1);
-                    console.log(intersects);
-                    if (intersects.length > 0) {
-                        var intersect = intersects[0];
                         if (mode == "delete") {
-                            if (intersect.object != plane) {
-                                scene.remove(intersect.object);
-                                objects.splice(objects.indexOf(intersect.object), 1); 
-                            }
+                            deleteObj();
                         }
 						else if (mode == "move"){
 							if(!isMoving){
-								if( intersect.object != plane && intersect.object.geometry != tile){
-									setRollOverFromBlock(intersect.object);
-									scene.remove(intersect.object);
-									objects.splice(objects.indexOf(intersect.object), 1);
-									isMoving = true;
-								}
+								moveObj();
 							}
 							else{
-								addBlock();
-								isMoving = false;
-								rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.5, transparent: true });
-								SwitchGeo("unitBlock");
+								dropObj();
 							}
 						}
                         else {  //mode == add
                             addBlock();
                         }
-                    }
                     render();
     }
 
@@ -602,24 +581,40 @@ function spaceKey() {
 		event.stopPropagation();
 	}
                         if (mode == "delete") {
-                            for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
+                            deleteObj();
+                        }
+						else if (mode == "move"){
+							if(!isMoving){
+								moveObj();
+							}
+							else{
+								dropObj;
+							}
+						}
+                        else {  //mode == add
+                            addBlock();
+                        }
+                    render();
+}
+
+function deleteObj(){
+	for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
                                 var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
                                 var globalVertex = localVertex.applyMatrix4(rollOverMesh.matrix);
                                 var directionVector = globalVertex.sub(rollOverMesh.position);
 								var collisRaycaster = new THREE.Raycaster();
                                 collisRaycaster.set(rollOverMesh.position, directionVector.clone().normalize());
                                 var collisionResults = collisRaycaster.intersectObjects(objects);
-                                console.log("collision size:" + collisionResults.length);
                                 if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && collisionResults[0].object != plane) {
 									scene.remove(collisionResults[0].object);
                                     console.log(collisionResults[0].object);
                                     objects.splice(objects.indexOf(collisionResults[0].object), 1);
                                 }
                             }
-                        }
-						else if (mode == "move"){
-							if(!isMoving){
-								for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
+}
+
+function moveObj(){
+	for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
                                 var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
                                 var globalVertex = localVertex.applyMatrix4(rollOverMesh.matrix);
                                 var directionVector = globalVertex.sub(rollOverMesh.position);
@@ -636,20 +631,14 @@ function spaceKey() {
                                     objects.splice(objects.indexOf(collisionResults[0].object), 1);
 									isMoving = true;
 									}
-								}	
-							
-							}
-							else{
-								addBlock(rollOverMesh.position);
-								isMoving = false;
-								rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.5, transparent: true });
-								SwitchGeo("unitBlock");
-							}
-						}
-                        else {  //mode == add
-                            addBlock();
-                        }
-                    render();
+								}
+}
+
+function dropObj(){
+	addBlock();
+	isMoving = false;
+	rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.5, transparent: true });
+	SwitchGeo("unitBlock")
 }
 
 //returns list of all objects (including plane) reticle collides with
