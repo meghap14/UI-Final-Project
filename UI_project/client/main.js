@@ -6,10 +6,11 @@ import './main.html';
 var THREE = require('three');
 var OrbitControls = require('three-orbit-controls')(THREE);
 OrbitControls === undefined;
+var loader = new THREE.TextureLoader(); //texture loader for three js
 
 
 if (Meteor.isClient) {
-
+	Meteor.subscribe('textures');
 	LOGGED_IN_USER = new ReactiveVar("");
 	
 	//boolean for whether to show the login screen, landing screen
@@ -17,6 +18,7 @@ if (Meteor.isClient) {
 	SHOW_LANDING = new ReactiveVar(true);
 
 	PROJECT_NAME = new ReactiveVar("");
+	PATHS = new ReactiveVar([]);
 
 	Template.container.onCreated(function() {
 		//creates client side versons of databases
@@ -106,6 +108,7 @@ if (Meteor.isClient) {
 	Template.welcome.events({
 		'click #logout'(event, instance) {
 			if (confirm("Are you sure you want to log out without saving?")){
+
 				//clear objects from scene and then from objects array
 				var length = objects.length;
 				for (var i = 0; i < length; i++) {
@@ -114,6 +117,7 @@ if (Meteor.isClient) {
 				for (var i = 0; i < length; i++) {
 					objects.pop();
 				}
+
 				//clear global var for logged in user and return to login version of landing page
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
@@ -175,6 +179,7 @@ if (Meteor.isClient) {
 					else {
 						//retrieve project from database
 						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
+
 						var blocks = saved_project.project;
 
 						//rebuild each object from the saved information
@@ -184,7 +189,9 @@ if (Meteor.isClient) {
 							var color = blocks[i].color;
 							var new_block;
 							var build_geo;
-							var build_mesh = new THREE.MeshLambertMaterial({color : color});
+							loader.load(color, function(texture){
+							var build_mesh = new THREE.MeshLambertMaterial({map : texture});
+
 							if (geo == "square") {
 								build_geo = square;
 							}
@@ -197,6 +204,10 @@ if (Meteor.isClient) {
 							else if (geo == "wall") {
 								build_geo = wall;
 							}
+							else if (geo == "floor"){
+								build_geo = floor;
+							}
+
 							else if (geo == "pyramid") {
 								build_geo = pyramid;
 							}
@@ -216,12 +227,14 @@ if (Meteor.isClient) {
 							new_block.rotation.x = blocks[i].rot[0];
 							new_block.rotation.y = blocks[i].rot[1];
 							new_block.rotation.z = blocks[i].rot[2];
-
-							//add the rebuilt object to objects array and to the scene
+                
+               //add the rebuilt object to objects array and to the scene
 							objects.push(new_block);
 							scene.add(new_block);
 							render();
+							});
 						}
+
 
 						//go to main page
 						SHOW_LANDING.set(false);
@@ -246,6 +259,7 @@ if (Meteor.isClient) {
 
 
 //////////////////////
+//                  //
 //THREE JS variables//
 //////////////////////
 
@@ -273,10 +287,6 @@ smallRenderer.shadowMap.enabled = true;
 //THIS IS WHAT WE LOAD AND STORE
 var objects = []; //array of all objects on map
 
-//cube impl
-
-
-
 camera.position.set(100, 100, 200);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 smallCamera.position.set(50, 50, 50);
@@ -287,24 +297,19 @@ var gridDivs = 20;
 var grid = new THREE.GridHelper(gridSize, gridDivs);
 
 //temporary transparent block from three.js
-var rollOverGeo = new THREE.BoxGeometry(20, 20, 20);
-rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
-rollOverMesh.name = 'squareMesh';
-rollOverMesh.position.addScalar(10);
-scene.add(rollOverMesh);
 
 
 scene.add(grid);
 var unitBlock = new THREE.BoxGeometry(10, 10, 10);
-var square = new THREE.BoxGeometry(20, 20, 20);
-var rectangle = new THREE.BoxGeometry(20, 20, 40);
+var square = new THREE.BoxGeometry(10, 10, 10);
+var rectangle = new THREE.BoxGeometry(10, 10, 20);
 var quarterBlock = new THREE.BoxGeometry(10, 20, 10);
 var wall = new THREE.BoxGeometry(5, 20, 20);
+var floor = new THREE.BoxGeometry(20, 5, 20);
 var pyramid = new THREE.CylinderGeometry(0, 10, 20, 4, false);
 var cylinder = new THREE.CylinderGeometry(10, 10, 20, 100, false);
 var sphere = new THREE.SphereGeometry(5, 10, 10);
-var tile = new THREE.PlaneGeometry(5,5);
+var tile = new THREE.PlaneGeometry(10,10);
 tile.rotateX(-Math.PI / 2);
 
 
@@ -336,6 +341,7 @@ halfPyramid.faces.push(face);
 
 var globe_geometry = square;
 var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
+var path = 'textures/brick.png';
 
 var testObj = new THREE.Mesh(globe_geometry, globe_material);
 testObj.position.x = 0;
@@ -353,6 +359,13 @@ plane.name = "plane";
 scene.add(plane);
 //objects.push(plane);
 
+var rollOverGeo = square;
+rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
+rollOverMesh = new THREE.Mesh(rollOverGeo, rollOverMaterial);
+rollOverMesh.name = 'squareMesh';
+rollOverMesh.position.addScalar(10);
+scene.add(rollOverMesh);
+
 var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
 
@@ -366,14 +379,19 @@ smallScene.add(smallLight);
 
 //allows camera movement
 var controls = new OrbitControls(camera, renderer.domElement);
+controls.enableKeys = false;
 
-var loader = new THREE.TextureLoader();
-var path = 'textures/emerald_block.png';
+
 animate();
+
 Template.interface.onRendered(function () {
-	
-	console.log(testObj);
-	console.log(smallScene);
+	loader.load(path, function(texture){
+		globe_material = new THREE.MeshLambertMaterial({map: texture});
+		smallScene.remove(testObj);
+		testObj = new THREE.Mesh(globe_geometry, globe_material);
+		smallScene.add(testObj);
+	});
+
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -382,10 +400,10 @@ Template.interface.onRendered(function () {
 	$('#smallScene').append(smallRenderer.domElement);
 	
     //javascript event listeners
-    $('#canvas').mousemove(onDocumentMouseMove);
-    $('#canvas').mousedown(onDocumentMouseDown);
+    $('.row').mousemove(onDocumentMouseMove);
+    $('.row').mousedown(onDocumentMouseDown);
 	controls.addEventListener('change', function () { renderer.render(scene, camera); });
-    window.keydown(arrowKeys, false);
+    window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('resize', onWindowResize, false);
     render();
 
@@ -423,18 +441,7 @@ Template.interface.events({
 	},
 	
 	"change #color": function(event, template){
-		dropColor = $(event.currentTarget).val();
-		globe_material = new THREE.MeshLambertMaterial({color : dropColor});
-		console.log(globe_material);
-		console.log(globe_geometry);
-		position = testObj.position;
-		smallScene.remove(testObj);
-		testObj = new THREE.Mesh(globe_geometry, globe_material);
-		smallScene.add(testObj);
-		testObj.position.setX(position.getComponent(0));
-		testObj.position.setY(position.getComponent(1));
-		testObj.position.setZ(position.getComponent(2));
-		render();
+		changeTexture();
 	},
 	
 	"change #geo": function(event, template){
@@ -449,9 +456,22 @@ Template.interface.events({
 		testObj.position.setX(position.getComponent(0));
 		testObj.position.setY(position.getComponent(1));
 		testObj.position.setZ(position.getComponent(2));
+		if(dropGeo === "tile"){
+			$(".tile").css("display", "inline");
+			$(".texture").css("display", "none");
+			$("#color").val("tiles/dirt.png");
+			changeTexture();
+		}
+		else{
+			$(".tile").css("display", "none");
+			$(".texture").css("display", "inline");
+			$("#color").val("textures/brick.png");
+			changeTexture();
+		}
 		render();
 	},
 	'click #save'(event, instance) {
+
 
 		//build array that stores information about each object
 		var project = [];
@@ -470,6 +490,10 @@ Template.interface.events({
 			else if (objects[i].geometry == wall) {
 				geometry = "wall";
 			}
+			else if (objects[i].geometry == floor){
+				geometry = "floor";
+			}
+
 			else if (objects[i].geometry == pyramid) {
 				geometry = "pyramid";
 			}
@@ -482,7 +506,8 @@ Template.interface.events({
 			else if (objects[i].geometry == tile) {
 				geometry = "tile";
 			}
-			var color = "new THREE.MeshLambertMaterial({ color: 0x40ff8f });";
+			var color = objects[i].name;   //FIXME
+
 			var pos = [objects[i].position.x, objects[i].position.y, objects[i].position.z];
 			var rot = [objects[i].rotation.x, objects[i].rotation.y, objects[i].rotation.z];
 			var object = {
@@ -493,6 +518,7 @@ Template.interface.events({
 			}
 			project.push(object);
 		}
+
 		//server side call to insert project into database
 		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
 
@@ -520,28 +546,30 @@ Template.interface.events({
 
 //Javascript functions
 function onDocumentMouseMove(event) {  //taken from threejs.org
-                
 					var offset = $(this).offset();
-                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
+                    mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top * 2.5)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera); //generates ray from camera passing through mouse location
                     objects.push(plane);
 					var intersects = raycaster.intersectObjects(objects);
 					objects.splice(objects.indexOf(plane),1);
                     //console.log(intersects);
-                    if (intersects.length > 0) {
+                    if (intersects.length > 0 && intersects[0].geometry != tile) {
                         var intersect = intersects[0];
                         rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-                        rollOverMesh.position.floor().addScalar(10);
-                        if (rollOverMesh.name == "unitBlockMesh") rollOverMesh.translateY(-5);
-						if (dropGeo == "tile") rollOverMesh.translateY(-9);
-						//if (rollOverGeo == wall) rollOverMesh.translateX(-2);
+                        rollOverMesh.position.divideScalar(2.5).floor().multiplyScalar(2.5);
+						rollOverMesh.position.y += 10;
+                        if (rollOverMesh.geometry === unitBlock) rollOverMesh.translateY(-5);
+						if (rollOverMesh.geometry === square) rollOverMesh.translateY(-5);
+						if (rollOverMesh.geometry === floor) rollOverMesh.translateY(-10);
+						if (rollOverMesh.geometry === tile) rollOverMesh.translateY(-9);
                     }
                     render();
     }
 
+
 	
 function onDocumentMouseDown(event) {
-					event.stopPropagation();
+					//event.stopPropagation();
                     var offset = $(this).offset();
                     mouse.set(((event.pageX - offset.left) / $(this).width()) * 2 - 1, - ((event.pageY - offset.top)/ $(this).height()) * 2 + 1);
                     raycaster.setFromCamera(mouse, camera);
@@ -581,30 +609,31 @@ function onDocumentMouseDown(event) {
     }
 
 function arrowKeys(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-					var delta = clock.getDelta(); //seconds
-					var moveDistance = 100 * delta; //move 100 pixels per second
+                    if(!SHOW_LOGIN) event.preventDefault();
+                    //event.stopPropagation();
+					var d = new Date()
+					var delta = d.getSeconds(); //seconds
+					var moveDistance = delta; //move 1 pixels per second
 					if (event.keyCode == 32){
 						spaceKey();
 					}
                     if (event.keyCode == 37) {  //left arrow
-                        rollOverMesh.position.x -= moveDistance;
+                        rollOverMesh.position.x -= 1;
 						rollOverMesh.position.floor()
 						//keyCollision();
                     }
                     else if (event.keyCode == 38) { //up arrow
-                       rollOverMesh.position.z -= moveDistance;
+                       rollOverMesh.position.z -= 1;
 						rollOverMesh.position.floor()
 						//keyCollision();
                     }
                     else if (event.keyCode == 39) { //right arrow
-                        rollOverMesh.position.x += moveDistance;
+                        rollOverMesh.position.x += 1;
 						rollOverMesh.position.floor()
 						//keyCollision();
                     }
                     else if (event.keyCode == 40) { //down arrow
-                        rollOverMesh.position.z += moveDistance;
+                        rollOverMesh.position.z += 1;
 						rollOverMesh.position.floor()
 						//keyCollision();
 
@@ -618,10 +647,11 @@ function arrowKeys(event) {
 						rollOverMesh.translateY(5);
 					}
                     render();
-					return true;
+					//return true;
     }
 
 function spaceKey() {
+	if (!SHOW_LOGIN) event.preventDefault();
                         if (mode == "delete") {
                             for (var vertexIndex = 0; vertexIndex < rollOverMesh.geometry.vertices.length; vertexIndex++) {
                                 var localVertex = rollOverMesh.geometry.vertices[vertexIndex].clone();
@@ -738,6 +768,23 @@ function keyCollision(){  //handles collision detection on keystrokes
                 }
 }
 
+function changeTexture(){
+	path = $("#color").val();
+	loader.load(path, function(texture){
+		globe_material = new THREE.MeshLambertMaterial({ map: texture });
+		globe_material.name = path;
+		console.log(globe_material);
+		console.log(globe_geometry);
+		position = testObj.position;
+		smallScene.remove(testObj);
+		testObj = new THREE.Mesh(globe_geometry, globe_material);
+		smallScene.add(testObj);
+		testObj.position.setX(position.getComponent(0));
+		testObj.position.setY(position.getComponent(1));
+		testObj.position.setZ(position.getComponent(2));
+		render();
+	});
+}
 function SwitchGeo(val) {
 	if (mode == "add"){
               if (val == "square") {
@@ -760,6 +807,11 @@ function SwitchGeo(val) {
 				else if (val == "wall") {
 					globe_geometry = wall;
 					rollOverGeo = wall;
+					changeRollOverMesh(val);
+				}
+				else if (val === "floor"){
+					globe_geometry = floor;
+					rollOverGeo = floor;
 					changeRollOverMesh(val);
 				}
                 else if (val == "pyramid") {
@@ -831,7 +883,8 @@ function addBlock(){
 	cur_geo = globe_geometry;
 	var cur_color;
 	if (isMoving){
-    cur_color = globe_material;
+    cur_color = rollOverMesh.material;
+
 	  block = new THREE.Mesh(cur_geo, cur_color);
     block.name = path;
     block.castShadow = true;
@@ -853,10 +906,9 @@ function addBlock(){
 	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
     objects.push(block);
 	}
+	
 	else {
-	loader.load(path, function(texture){
-	cur_color = new THREE.MeshLambertMaterial({ map: texture });
-    block = new THREE.Mesh(cur_geo, cur_color);
+    block = new THREE.Mesh(globe_geometry, globe_material);
     block.name = path;
     block.castShadow = true;
     block.receiveShadow = true;
@@ -871,12 +923,13 @@ function addBlock(){
 	
 	//Make block motion discrete, not continuous
     block.position.floor().addScalar(10);
+	if (block.geometry === tile) block.position.setY(1);
     scene.add(block);
 	block.rotation.x = rollOverMesh.rotation.x;
 	block.rotation.y = rollOverMesh.rotation.y;
 	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
     objects.push(block);
-	});
+
 	}
 }	
 
