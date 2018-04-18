@@ -1,4 +1,7 @@
 # UI-Final-Project
+# Molly Mintz
+# Megha Patel
+# Timothy Standen
 
 How to set up project:
 
@@ -6,6 +9,7 @@ Languages/frameworks/tools:
 	frontend - html, css
 	client/main.js - Meteor framework, three.js, Javascript, jQuery, 
 	server/main.js - Meteor framework, Javascript, Node.js, MongoDB
+	deploymnet - heroku, mLab
 
 How to run the program:
 	Input desired username and password and select "create new account"
@@ -15,7 +19,6 @@ How to run the program:
 	The currently selected shape and texture will be displayed in the window on the left.
 
 Link:
-Hereis a link to our deployed application:
-
-https://eightbitbuilder.herokuapp.com
+	Here is a link to our deployed application:
+	https://eightbitbuilder.herokuapp.com
 
