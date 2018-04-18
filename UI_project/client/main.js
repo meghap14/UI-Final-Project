@@ -13,28 +13,28 @@ if (Meteor.isClient) {
 	Meteor.subscribe('textures');
 	LOGGED_IN_USER = new ReactiveVar("");
 	
-	//boolean for whether to show the login screen.  We might change the structure of this when we add more views
+	//boolean for whether to show the login screen, landing screen
 	SHOW_LOGIN = new ReactiveVar(true);
 	SHOW_LANDING = new ReactiveVar(true);
+
 	PROJECT_NAME = new ReactiveVar("");
 	PATHS = new ReactiveVar([]);
 
 	Template.container.onCreated(function() {
-		//creates client side verson of database
+		//creates client side versons of databases
 		Accounts = new Mongo.Collection('accounts');
 		Projects = new Mongo.Collection('projects');
-		Textures = new Mongo.Collection('textures');
 	});
 
 	Template.container.helpers({
-		//returns the boolean value of whether to show login screen
+		//returns the boolean value of whether to show landing screen
 		show_landing : function() {
 			return SHOW_LANDING.get();
 		}
 	});
 
 	Template.login.onRendered(function() {
-		//holds value of what users type into username textbox
+		//holds value of what users type into input boxes
 		this.username = new ReactiveVar("");
 		this.password = new ReactiveVar("");
 		this.project_name = new ReactiveVar("");
@@ -45,12 +45,10 @@ if (Meteor.isClient) {
 			instance.username.set($('#username').val());
 			instance.password.set($('#password').val());
 			
-			//check if username textbox is empty
+			//check if username or password input box is empty
 			if (instance.username.get() === "") {
-				//currently firing alerts, we can change this to on the page warnings if we want
 				alert("Please enter a username");
 			}
-
 			else if (instance.password.get() === "") {
 				alert("Please enter a password");
 			}
@@ -74,12 +72,11 @@ if (Meteor.isClient) {
 			instance.username.set($('#username').val());
 			instance.password.set($('#password').val());
 			
-			//checks if username textbox is empty
+			//checks if username or password input box is empty
 			if (instance.username.get() === "") {
 				alert("Please enter a username");
 			}
-
-			if (instance.password.get() === "") {
+			else if (instance.password.get() === "") {
 				alert("Please enter a password");
 			}
 			
@@ -102,15 +99,17 @@ if (Meteor.isClient) {
 		name : function() {
 			return LOGGED_IN_USER.get();
 		},
+		//returns boolean of whether to show landing page
 		show_landing : function() {
 			return SHOW_LANDING.get();
 		}
 	});
 
 	Template.welcome.events({
-		//clears global value for logged in user, switches back to login screen
 		'click #logout'(event, instance) {
 			if (confirm("Are you sure you want to log out without saving?")){
+
+				//clear objects from scene and then from objects array
 				var length = objects.length;
 				for (var i = 0; i < length; i++) {
 					scene.remove(objects[i]);
@@ -118,6 +117,8 @@ if (Meteor.isClient) {
 				for (var i = 0; i < length; i++) {
 					objects.pop();
 				}
+
+				//clear global var for logged in user and return to login version of landing page
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
 				SHOW_LANDING.set(true);
@@ -140,6 +141,7 @@ if (Meteor.isClient) {
 	});
 
 	Template.landing.helpers({
+		//return boolean of whether to show login screen
 		show_login : function() {
 			return SHOW_LOGIN.get();
 		}
@@ -147,15 +149,19 @@ if (Meteor.isClient) {
 
 	Template.project.onCreated( function() {
 		this.project_name = new ReactiveVar("");
+		//status is New Project or Saved Project
 		this.status = new ReactiveVar("");
 	});
 
 	Template.project.events({
+		//when status is selected from dropdown menu
 		'change #project_status'(event, instance) {
 			instance.status.set($(event.currentTarget).val());
 		},
 		'click #go'(event, instance) {
 			instance.project_name.set($('#project_name').val());
+
+			//checks if project name and status have been entered
 			if (instance.project_name.get() === "") {
 				alert("Please enter a project name");
 			}
@@ -163,18 +169,20 @@ if (Meteor.isClient) {
 				alert("Please select what to work on");
 			}
 			else {
+				//set global project name
 				PROJECT_NAME.set(instance.project_name.get());
 				if (instance.status.get() === "Saved Project") {
+					//check if project exists in database
 					if (!Projects.find({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }).count()) {
 						alert("Project does not exist");
 					}
 					else {
-						//set objects to be saved objects from database
-
+						//retrieve project from database
 						var saved_project = Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get()});
-						console.log("Saved project:");
-						console.log(saved_project.project);
+
 						var blocks = saved_project.project;
+
+						//rebuild each object from the saved information
 						var length = blocks.length;
 						for (var i = 0; i < length; ++i) {
 							var geo = blocks[i].geometry;
@@ -183,6 +191,7 @@ if (Meteor.isClient) {
 							var build_geo;
 							loader.load(color, function(texture){
 							var build_mesh = new THREE.MeshLambertMaterial({map : texture});
+
 							if (geo == "square") {
 								build_geo = square;
 							}
@@ -198,6 +207,7 @@ if (Meteor.isClient) {
 							else if (geo == "floor"){
 								build_geo = floor;
 							}
+
 							else if (geo == "pyramid") {
 								build_geo = pyramid;
 							}
@@ -217,20 +227,26 @@ if (Meteor.isClient) {
 							new_block.rotation.x = blocks[i].rot[0];
 							new_block.rotation.y = blocks[i].rot[1];
 							new_block.rotation.z = blocks[i].rot[2];
-
+                
+               //add the rebuilt object to objects array and to the scene
 							objects.push(new_block);
 							scene.add(new_block);
 							render();
 							});
 						}
+
+
+						//go to main page
 						SHOW_LANDING.set(false);
 					}
 				}
 				else {
+					//check if project exists
 					if (Projects.find({ username : LOGGED_IN_USER.get(), project_name : instance.project_name.get() }).count()) {
 						alert("Project already exists");
 					}
 					else {
+						//go to main page
 						SHOW_LANDING.set(false);
 					}
 				}
@@ -283,7 +299,6 @@ var grid = new THREE.GridHelper(gridSize, gridDivs);
 //temporary transparent block from three.js
 
 
-
 scene.add(grid);
 var unitBlock = new THREE.BoxGeometry(10, 10, 10);
 var square = new THREE.BoxGeometry(10, 10, 10);
@@ -327,6 +342,7 @@ halfPyramid.faces.push(face);
 var globe_geometry = square;
 var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
 var path = 'textures/brick.png';
+
 var testObj = new THREE.Mesh(globe_geometry, globe_material);
 testObj.position.x = 0;
 	testObj.position.y = 0;
@@ -365,6 +381,7 @@ smallScene.add(smallLight);
 var controls = new OrbitControls(camera, renderer.domElement);
 controls.enableKeys = false;
 
+
 animate();
 
 Template.interface.onRendered(function () {
@@ -374,6 +391,7 @@ Template.interface.onRendered(function () {
 		testObj = new THREE.Mesh(globe_geometry, globe_material);
 		smallScene.add(testObj);
 	});
+
 	camera.aspect = $("#canvas").width() / $("#canvas").height();
     camera.updateProjectionMatrix();
 	renderer.setSize($("#canvas").width(), $("#canvas").height());
@@ -454,9 +472,8 @@ Template.interface.events({
 	},
 	'click #save'(event, instance) {
 
-		console.log("objects:");
-		console.log(objects);
 
+		//build array that stores information about each object
 		var project = [];
 		var length = objects.length;
 		for (var i = 0; i < length; ++i) {
@@ -476,6 +493,7 @@ Template.interface.events({
 			else if (objects[i].geometry == floor){
 				geometry = "floor";
 			}
+
 			else if (objects[i].geometry == pyramid) {
 				geometry = "pyramid";
 			}
@@ -489,6 +507,7 @@ Template.interface.events({
 				geometry = "tile";
 			}
 			var color = objects[i].name;   //FIXME
+
 			var pos = [objects[i].position.x, objects[i].position.y, objects[i].position.z];
 			var rot = [objects[i].rotation.x, objects[i].rotation.y, objects[i].rotation.z];
 			var object = {
@@ -499,16 +518,17 @@ Template.interface.events({
 			}
 			project.push(object);
 		}
-		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project); //project instead of objects
 
+		//server side call to insert project into database
+		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project);
 
-		console.log("project:");
-		console.log(project);
-		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
 		render();
+
+		//go back to landing page
 		SHOW_LANDING.set(true);
 	},
 	'click #clear'(event, instance) {
+		//remove objects from scene and then from objects array
 		var length = objects.length;
 		for (var i = 0; i < length; i++) {
 			console.log("remove");
@@ -864,6 +884,7 @@ function addBlock(){
 	var cur_color;
 	if (isMoving){
     cur_color = rollOverMesh.material;
+
 	  block = new THREE.Mesh(cur_geo, cur_color);
     block.name = path;
     block.castShadow = true;
@@ -908,6 +929,7 @@ function addBlock(){
 	block.rotation.y = rollOverMesh.rotation.y;
 	if (dropGeo != "tile") block.rotation.z = rollOverMesh.rotation.z;
     objects.push(block);
+
 	}
 }	
 
