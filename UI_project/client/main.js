@@ -797,7 +797,6 @@ function setRollOverFromBlock(block){
 	
 	//save current position of block for replacement
     position = block.position;
-	rotation = block.rotation;
     scene.remove(rollOverMesh);
     rollOverMesh = new THREE.Mesh(block.geometry, block.material);
     rollOverMesh.name = block.name + "Mesh";
@@ -807,9 +806,6 @@ function setRollOverFromBlock(block){
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
     rollOverMesh.position.setZ(position.getComponent(2));
-	rollOverMesh.rotation.setX(rotation.getComponent(0));
-	rollOverMesh.rotation.setY(rotation.getComponent(1));
-	rollOverMesh.rotation.setZ(rotation.getComponent(2));
 }
 
 function addBlock(){
@@ -826,9 +822,6 @@ function addBlock(){
 	block.position.setX(rollOverMesh.position.x);
 	block.position.setY(rollOverMesh.position.y);
 	block.position.setZ(rollOverMesh.position.z);
-	block.rotation.setX(rollOverMesh.rotation.x);
-	block.rotation.setY(rollOverMesh.rotation.y);
-	block.rotation.setZ(rollOverMesh.rotation.z);
 	block.translateX(-10);
 	block.translateY(-10);
 	block.translateZ(-10);
