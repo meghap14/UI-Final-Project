@@ -139,7 +139,6 @@ if (Meteor.isClient) {
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
 				SHOW_LANDING.set(true);
-
 			}
 		}
 	});
@@ -280,7 +279,6 @@ halfPyramid.faces.push(face);
 var globe_geometry = square;
 var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
 var path = 'textures/brick.png';
-
 var testObj = new THREE.Mesh(globe_geometry, globe_material);
 testObj.position.x = 0;
 	testObj.position.y = 0;
