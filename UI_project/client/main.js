@@ -23,7 +23,6 @@ if (Meteor.isClient) {
 		//creates client side verson of database
 		Accounts = new Mongo.Collection('accounts');
 		Projects = new Mongo.Collection('projects');
-		Textures = new Mongo.Collection('textures');
 	});
 
 	Template.container.helpers({
@@ -329,6 +328,7 @@ Template.interface.onRendered(function () {
 
 
 function initScene(){
+	needsLoad = false;
 	console.log('initializing scene');
 	console.log(scene);
 	loader.load(path, function(texture){
@@ -346,7 +346,7 @@ function initScene(){
 	
     //javascript event listeners
     $('.row').mousemove(onDocumentMouseMove);
-    $('.row').mousedown(onDocumentMouseDown);
+    $('#canvas').mousedown(onDocumentMouseDown);
 	controls.addEventListener('change', function () { renderer.render(scene, camera); });
     window.addEventListener('keydown', arrowKeys, true);
     window.addEventListener('resize', onWindowResize, false);
