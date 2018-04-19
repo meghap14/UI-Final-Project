@@ -463,7 +463,17 @@ Template.interface.events({
 			project.push(object);
 		}
 		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project); //project instead of objects
-
+		var length = objects.length;
+		for (var i = 0; i < length; i++) {
+			console.log("remove");
+			scene.remove(objects[i]);
+			console.log(objects);
+		}
+		for (var i = 0; i < length; i++) {
+			console.log("pop");
+			objects.pop()
+			console.log(objects);
+		}
 
 		console.log("project:");
 		console.log(project);
