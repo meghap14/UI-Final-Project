@@ -121,7 +121,6 @@ if (Meteor.isClient) {
 				SHOW_LOGIN.set(true);
 				SHOW_LANDING.set(true);
 			}
-			render();
 		},
 		'click #deleteAccount'(event, instance) {
 			//sends confirmation alert
@@ -129,7 +128,13 @@ if (Meteor.isClient) {
 
 				//calls server side function to delete account
 				Meteor.call('delete_account', LOGGED_IN_USER.get());
-			
+				var length = objects.length;
+				for (var i = 0; i < length; i++) {
+					scene.remove(objects[i]);
+				}
+				for (var i = 0; i < length; i++) {
+					objects.pop();
+				}
 				//clears global value for logged in user, switches back to login screen
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
@@ -465,32 +470,20 @@ Template.interface.events({
 		Meteor.call('insert_project', LOGGED_IN_USER.get(), PROJECT_NAME.get(), project); //project instead of objects
 		var length = objects.length;
 		for (var i = 0; i < length; i++) {
-			console.log("remove");
 			scene.remove(objects[i]);
-			console.log(objects);
 		}
 		for (var i = 0; i < length; i++) {
-			console.log("pop");
 			objects.pop()
-			console.log(objects);
 		}
-		console.log("project:");
-		console.log(project);
-		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
-		render();
 		SHOW_LANDING.set(true);
 	},
 	'click #clear'(event, instance) {
 		var length = objects.length;
 		for (var i = 0; i < length; i++) {
-			console.log("remove");
 			scene.remove(objects[i]);
-			console.log(objects);
 		}
 		for (var i = 0; i < length; i++) {
-			console.log("pop");
 			objects.pop()
-			console.log(objects);
 		}
 		render();
 	}
