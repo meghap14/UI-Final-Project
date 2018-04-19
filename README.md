@@ -21,4 +21,5 @@ How to run the program:
 Link:
 	Here is a link to our deployed application:
 	https://eightbitbuilder.herokuapp.com
-
+	Here is a link to our repo incase things go wrong:
+	https://github.com/meghap14/UI-Final-Project
