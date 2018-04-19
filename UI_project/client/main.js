@@ -358,13 +358,13 @@ Template.interface.events({
 	'click [name="mode"]': function(event, template) {
 		mode = $(event.currentTarget).val();
 		isMoving = false;
-		if (mode == "add"){
+		if (mode === "add"){
 			SwitchGeo(dropGeo);
 			while(rollOverMesh.position.y < 10) {
 				rollOverMesh.translateY(5);
 			}
 			rollOverMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-			changeRollOverMesh(dropGeo + "Mesh");	
+			changeRollOverMesh(dropGeo);
 		}
 		else {
 			SwitchGeo("unitBlock");
@@ -474,7 +474,6 @@ Template.interface.events({
 			objects.pop()
 			console.log(objects);
 		}
-
 		console.log("project:");
 		console.log(project);
 		console.log(Projects.findOne({ username : LOGGED_IN_USER.get(), project_name : PROJECT_NAME.get() }));
@@ -734,61 +733,50 @@ function changeTexture(){
 	});
 }
 function SwitchGeo(val) {
-	if (mode == "add"){
               if (val == "square") {
                   globe_geometry = square;
 			      rollOverGeo = square;
-                  changeRollOverMesh(val);
-
               }
               else if (val == "rectangle") {
                   globe_geometry = rectangle;
 				  rollOverGeo = rectangle;
-                  changeRollOverMesh(val);
-
               }
                 else if (val == "quarterBlock") {
                     globe_geometry = quarterBlock;
 					rollOverGeo = quarterBlock;
-                    changeRollOverMesh(val);
                 }
 				else if (val == "wall") {
 					globe_geometry = wall;
 					rollOverGeo = wall;
-					changeRollOverMesh(val);
 				}
 				else if (val === "floor"){
 					globe_geometry = floor;
 					rollOverGeo = floor;
-					changeRollOverMesh(val);
 				}
                 else if (val == "pyramid") {
                     globe_geometry = pyramid;
 					rollOverGeo = pyramid;
-					changeRollOverMesh(val);
                 }
                 else if (val == "half pyramid") {
                     globe_geometry = halfPyramid;
 					rollOverGeo = halfPyramid;
-                    changeRollOverMesh(val);
                 }
                 else if (val == "cylinder") {
                     globe_geometry = cylinder;
 					rollOverGeo = cylinder;
-                    changeRollOverMesh(val);
                 }
                 else if (val == "sphere") {
                     globe_geometry = sphere;
 					rollOverGeo = sphere;
-					changeRollOverMesh(val);
                 }
 				else if (val == "tile") {
 					globe_geometry = tile;
 					rollOverGeo = tile;
-					changeRollOverMesh(val);
 				}
-	}
 	
+	if (mode === "add"){
+		changeRollOverMesh(val);
+	}
     else if (!isMoving) {
 		rollOverGeo = unitBlock;
 		changeRollOverMesh(val)
