@@ -139,6 +139,7 @@ if (Meteor.isClient) {
 				LOGGED_IN_USER.set("");
 				SHOW_LOGIN.set(true);
 				SHOW_LANDING.set(true);
+
 			}
 		}
 	});
@@ -279,6 +280,7 @@ halfPyramid.faces.push(face);
 var globe_geometry = square;
 var globe_material = new THREE.MeshLambertMaterial({ color: 0x40ff8f });
 var path = 'textures/brick.png';
+
 var testObj = new THREE.Mesh(globe_geometry, globe_material);
 testObj.position.x = 0;
 	testObj.position.y = 0;
@@ -797,6 +799,7 @@ function setRollOverFromBlock(block){
 	
 	//save current position of block for replacement
     position = block.position;
+	rotation = block.rotation;
     scene.remove(rollOverMesh);
     rollOverMesh = new THREE.Mesh(block.geometry, block.material);
     rollOverMesh.name = block.name + "Mesh";
@@ -806,22 +809,28 @@ function setRollOverFromBlock(block){
     rollOverMesh.position.setX(position.getComponent(0));
     rollOverMesh.position.setY(position.getComponent(1));
     rollOverMesh.position.setZ(position.getComponent(2));
+	rollOverMesh.rotation.setX(rotation.getComponent(0));
+	rollOverMesh.rotation.setY(rotation.getComponent(1));
+	rollOverMesh.rotation.setZ(rotation.getComponent(2));
 }
 
 function addBlock(){
 	cur_geo = globe_geometry;
 	var cur_color;
 	if (isMoving){
-    cur_color = rollOverMesh.material;
-	  block = new THREE.Mesh(cur_geo, cur_color);
-    block.name = path;
-    block.castShadow = true;
-    block.receiveShadow = true;
+		cur_color = rollOverMesh.material;
+		block = new THREE.Mesh(cur_geo, cur_color);
+		block.name = path;
+		block.castShadow = true;
+		block.receiveShadow = true;
 	
 	//set position of block from position vector
 	block.position.setX(rollOverMesh.position.x);
 	block.position.setY(rollOverMesh.position.y);
 	block.position.setZ(rollOverMesh.position.z);
+	block.rotation.setX(rollOverMesh.rotation.x);
+	block.rotation.setY(rollOverMesh.rotation.y);
+	block.rotation.setZ(rollOverMesh.rotation.z);
 	block.translateX(-10);
 	block.translateY(-10);
 	block.translateZ(-10);
