@@ -8,18 +8,12 @@ Meteor.startup(() => {
   var THREE = require('three');
   
   /*code for getting textures from public folder*/
-  var fs = Npm.require('fs');
-  var files = fs.readdirSync('../web.browser/app/textures');
-  files.forEach(function(file) {
-	  console.log(file);
-  })
   
   //creates server side Accounts database (so info persists on refresh)
   Accounts = new Mongo.Collection('accounts');
 
   A_Schema = {};
 
-  //sets schema for Accounts database
   A_Schema.Accounts = new SimpleSchema({
   	username : {type: String},
   	password : {type: String}
@@ -27,12 +21,10 @@ Meteor.startup(() => {
 
   Accounts.attachSchema(A_Schema.Accounts);
 
-  //creates server side Projects database
   Projects = new Mongo.Collection('projects');
 
   P_Schema = {};
 
-  //sets schema for Projects database
   P_Schema.Projects = new SimpleSchema({
     username : {type : String},
     project_name : {type : String},
@@ -45,24 +37,25 @@ Meteor.startup(() => {
     'project.$.rot' : {type : Array},
     'project.$.rot.$' : {type : Number}
   });
-
+  
   Projects.attachSchema(P_Schema.Projects);
-
 });
+
 
 Meteor.methods({
 	delete_account : function(name) {
 		Accounts.remove({ username : name });
+		Projects.remove({username : name});
 	},
 	insert_account : function(username, password) {
 		Accounts.insert({username : username, password : password});
 	},
   insert_project : function(username, project_name, project) {
-    //checks if project already exists and if so removed it
+    console.log(project);
     if (Projects.find({ username : username, project_name : project_name }).count()) {
+      //remove entry and reinsert
       Projects.remove({ username : username, project_name : project_name});
     }
-    //inserts project into database
     Projects.insert({ username : username, project_name : project_name, project : project });
-  }
+  },
 });
